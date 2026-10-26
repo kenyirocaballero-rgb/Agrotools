@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Clean Edition</title>
+    <title>AgroSmart Pro Enterprise | Advanced Suite</title>
     
     <!-- Librerías Externas (GIS y Mapas) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -23,16 +23,16 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-main); color: #0f172a; padding: 20px; }
-        .container { max-width: 1200px; margin: auto; }
+        .container { max-width: 1300px; margin: auto; }
         
         /* Encabezado */
-        header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
+        header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         header h1 { font-size: 2.2rem; margin-bottom: 5px; }
         header p { font-size: 0.95rem; opacity: 0.9; }
 
         /* Pestañas */
-        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 12px 24px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 0.95rem; color: #475569; transition: 0.2s; }
+        .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 18px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 0.9rem; color: #475569; transition: 0.2s; }
         .tab-btn:hover { background: #f1f5f9; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -45,14 +45,17 @@
         
         /* Formularios y Botones */
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.88rem; color: #334155; }
-        input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
+        input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
         .action-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.95rem; }
         .action-btn:hover { background: #166534; }
-        .delete-all-btn { background: #dc2626; margin-bottom: 15px; }
+        .delete-all-btn { background: #dc2626; }
         .delete-all-btn:hover { background: #b91c1c; }
+        .export-btn { background: #0284c7; }
+        .export-btn:hover { background: #02699c; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
         canvas, img { width: 100%; max-height: 320px; object-fit: contain; border: 2px dashed var(--border); border-radius: 8px; background: #f8fafc; padding: 5px; }
         #mapaLotes { width: 100%; height: 450px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); z-index: 1; }
@@ -72,19 +75,21 @@
 
 <div class="container">
     <header>
-        <h1>AgroSmart Pro</h1>
-        <p>Plataforma de Biometría Óptica y Catastro Geodésico Persistente</p>
+        <h1>AgroSmart Pro Enterprise</h1>
+        <p>Suite Avanzada de Biometría Espectral, Catastro Geoespacial e Ingeniería de Riego</p>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Biometría Óptica</button>
-        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 2. Catastro GIS & Lotes</button>
+        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Biometría Espectral</button>
+        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 2. Catastro GIS & Mapas</button>
+        <button class="tab-btn" onclick="switchTab('riego', event)">💧 3. Demanda Hídrica ($ET_c$)</button>
+        <button class="tab-btn" onclick="switchTab('plantacion', event)">🌱 4. Densidad de Plantación</button>
     </div>
 
-    <!-- PESTAÑA 1: BIOMETRÍA ÓPTICA -->
+    <!-- PESTAÑA 1: BIOMETRÍA ESPECTRAL -->
     <div id="biometria" class="panel active">
-        <h2>Análisis Morfológico de Follaje (Canvas Nativo)</h2>
-        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Sube una foto cenital de la planta sobre fondo neutro para calcular automáticamente su área foliar en cm².</p>
+        <h2>Análisis Morfológico y Clasificación de Salud Foliar</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Sube una foto cenital. El motor clasifica el follaje en Vigor Sanidad (Verde) y Estrés/Clorosis (Amarillo).</p>
         
         <div class="grid-2">
             <div>
@@ -97,7 +102,7 @@
             </div>
         </div>
         
-        <button class="action-btn" onclick="procesarBiometria()">Procesar Área Foliar</button>
+        <button class="action-btn" onclick="procesarBiometriaAvanzada()">Procesar Biometría y Salud Foliar</button>
 
         <div class="grid-2" style="margin-top: 20px;">
             <div>
@@ -105,7 +110,7 @@
                 <img id="imagenOriginal" alt="Cargar imagen">
             </div>
             <div>
-                <label>Máscara de Follaje (Canvas)</label>
+                <label>Clasificación Espectral (Canvas)</label>
                 <canvas id="canvasOutput"></canvas>
             </div>
         </div>
@@ -113,30 +118,33 @@
         <div id="resultadoFoliar" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 2: CATASTRO GIS -->
+    <!-- PESTAÑA 2: CATASTRO GIS & MAPAS -->
     <div id="lotes" class="panel">
-        <h2>Catastro de Lotes y Geoseguridad (PIN: 2026)</h2>
-        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Dibuja polígonos delimitando tus campos. Se guardan automáticamente y no se borran al recargar.</p>
+        <h2>Catastro Geodésico, Capas Base y Exportación GeoJSON</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Dibuja polígonos, cambia entre Satélite y Calles, exporta tus vectores y protege tus datos con PIN (2026).</p>
         
-        <div class="grid-2">
+        <div class="grid-3">
             <div>
-                <label>Código del Lote a Dibujar:</label>
+                <label>Código del Lote:</label>
                 <input type="text" id="nombreLoteInput" placeholder="Ej. LOTE-01">
             </div>
             <div style="display: flex; align-items: flex-end;">
-                <button class="action-btn delete-all-btn" onclick="limpiarTodoSeguro()">🗑️ Borrar Todo el Catastro (Admin)</button>
+                <button class="action-btn export-btn" onclick="exportarGeoJSON()">📥 Exportar GeoJSON</button>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button class="action-btn delete-all-btn" onclick="limpiarTodoSeguro()">🗑️ Borrar Todo (Admin)</button>
             </div>
         </div>
 
         <div id="mapaLotes"></div>
 
-        <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Listado de Superficies Catastradas</h3>
+        <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Listado de Superficies y Centroides UTM</h3>
         <table>
             <thead>
                 <tr>
                     <th>Código</th>
-                    <th>Área (m²)</th>
                     <th>Área (Hectáreas)</th>
+                    <th>Centroide (Lat, Lon)</th>
                     <th>Acción Protegida</th>
                 </tr>
             </thead>
@@ -145,10 +153,57 @@
             </tbody>
         </table>
     </div>
+
+    <!-- PESTAÑA 3: DEMANDA HÍDRICA POR LOTE -->
+    <div id="riego" class="panel">
+        <h2>Calculadora de Requerimiento de Agua ($ET_c$) por Lote</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Selecciona un lote catastrado en la Pestaña 2 para calcular su volumen diario exacto de riego.</p>
+
+        <div class="grid-2">
+            <div>
+                <label>Seleccionar Lote Registrado:</label>
+                <select id="selectLoteRiego">
+                    <option value="">-- Primero dibuja lotes en el mapa --</option>
+                </select>
+            </div>
+            <div>
+                <label>Coeficiente de Cultivo (Kc):</label>
+                <input type="number" id="kcLoteInput" value="1.10" step="0.05">
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="calcularRiegoLote()">Calcular Volumen de Agua Diario</button>
+        <div id="resultadoRiegoLote" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- PESTAÑA 4: DENSIDAD DE PLANTACIÓN -->
+    <div id="plantacion" class="panel">
+        <h2>Calculadora de Densidad de Plantación (Marco de Siembra)</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Calcula el número exacto de plantas o árboles que caben en tus lotes según la distancia de siembra.</p>
+
+        <div class="grid-3">
+            <div>
+                <label>Seleccionar Lote:</label>
+                <select id="selectLotePlantacion">
+                    <option value="">-- Seleccionar Lote --</option>
+                </select>
+            </div>
+            <div>
+                <label>Distancia entre Surcos (m):</label>
+                <input type="number" id="distSurcos" value="3.0" step="0.1">
+            </div>
+            <div>
+                <label>Distancia entre Plantas (m):</label>
+                <input type="number" id="distPlantas" value="1.0" step="0.1">
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="calcularDensidadPlantas()">Calcular Número Total de Plantas</button>
+        <div id="resultadoPlantacion" class="result-box" style="display:none;"></div>
+    </div>
 </div>
 
 <script>
-    // PIN de Administrador para proteger el borrado
     const PIN_ADMIN = "2026";
 
     function switchTab(tabId, evt) {
@@ -161,9 +216,8 @@
         }
     }
 
-    // --- 1. BIOMETRÍA ÓPTICA ---
+    // --- 1. BIOMETRÍA ESPECTRAL ---
     let loadedImageObj = null;
-
     document.getElementById('fotoPlanta').addEventListener('change', (e) => {
         let file = e.target.files[0];
         if (!file) return;
@@ -172,11 +226,8 @@
         img.onload = () => { loadedImageObj = img; }
     });
 
-    function procesarBiometria() {
-        if (!loadedImageObj) {
-            alert("⚠️ Por favor selecciona una fotografía primero.");
-            return;
-        }
+    function procesarBiometriaAvanzada() {
+        if (!loadedImageObj) { alert("⚠️ Selecciona una fotografía primero."); return; }
         let areaRef = parseFloat(document.getElementById('areaReferenciaInput').value);
         let canvas = document.getElementById('canvasOutput');
         let ctx = canvas.getContext('2d');
@@ -185,41 +236,50 @@
         ctx.drawImage(loadedImageObj, 0, 0, canvas.width, canvas.height);
 
         let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imgData.data, pixelesVerdes = 0;
+        let data = imgData.data, pixelesSanos = 0, pixelesEstres = 0;
 
         for (let i = 0; i < data.length; i += 4) {
             let r = data[i], g = data[i+1], b = data[i+2];
-            // Filtro simple para detectar tonos verdes de la hoja
-            if (g > 50 && g > r * 1.1 && g > b * 1.1) {
-                pixelesVerdes++;
-                data[i] = 16; data[i+1] = 185; data[i+2] = 129; // Pintar verde
+            if (g > 50 && g > r * 1.2 && g > b * 1.2) {
+                pixelesSanos++;
+                data[i] = 21; data[i+1] = 128; data[i+2] = 61; // Verde Vigoroso
+            } else if (g > 40 && Math.abs(r - g) < 20) {
+                pixelesEstres++;
+                data[i] = 234; data[i+1] = 179; data[i+2] = 8; // Amarillo Clorosis
             } else {
-                data[i] = 15; data[i+1] = 23; data[i+2] = 42; // Fondo oscuro
+                data[i] = 15; data[i+1] = 23; data[i+2] = 42; // Fondo
             }
         }
         ctx.putImageData(imgData, 0, 0);
 
         let pixelesTotales = canvas.width * canvas.height;
-        let areaFoliarCalculada = (pixelesVerdes / (pixelesTotales * 0.3)) * (areaRef * 3);
+        let totalFollaje = pixelesSanos + pixelesEstres;
+        let areaFoliarCalculada = (totalFollaje / (pixelesTotales * 0.3)) * (areaRef * 3);
+        let pctSano = totalFollaje > 0 ? (pixelesSanos / totalFollaje) * 100 : 0;
 
         let box = document.getElementById('resultadoFoliar');
         box.style.display = "block";
-        box.innerHTML = `🌿 <strong>Resultado Morfométrico:</strong><br>` +
+        box.innerHTML = `🌿 <strong>Análisis Espectral:</strong><br>` +
                         `• Área Foliar Neta: <strong>${areaFoliarCalculada.toFixed(2)} cm²</strong><br>` +
-                        `• Píxeles de Follaje detectados: <strong>${pixelesVerdes.toLocaleString()} px</strong>`;
+                        `• Vigor Sanidad (Verde): <strong>${pctSano.toFixed(1)}%</strong><br>` +
+                        `• Clorosis / Estrés (Amarillo): <strong>${(100 - pctSano).toFixed(1)}%</strong>`;
     }
 
-    // --- 2. CATASTRO GIS (MAPA Y PERSISTENCIA) ---
-    let mapaSatellital = L.map('mapaLotes').setView([-8.1116, -79.0282], 15);
+    // --- 2. CATASTRO GIS CON CAPAS BASE Y CENTROIDES ---
+    let capaSatellites = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri World Imagery' });
+    let capaCalles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: 'OpenStreetMap' });
+
+    let mapaSatellital = L.map('mapaLotes', {
+        center: [-8.1116, -79.0282],
+        zoom: 15,
+        layers: [capaSatellites]
+    });
     window.mapaSatellital = mapaSatellital;
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19, attribution: 'Esri World Imagery'
-    }).addTo(mapaSatellital);
+    L.control.layers({ "Satélite (Esri)": capaSatellites, "Calles (OSM)": capaCalles }).addTo(mapaSatellital);
 
     let drawnItems = new L.FeatureGroup();
     mapaSatellital.addLayer(drawnItems);
-
     let drawControl = new L.Control.Draw({
         edit: { featureGroup: drawnItems },
         draw: { polygon: true, rectangle: true, polyline: false, circle: false, marker: false, circlemarker: false }
@@ -228,7 +288,6 @@
 
     let listaLotesDatos = [];
 
-    // Cargar lotes guardados en el navegador al abrir la página
     function cargarLotesGuardados() {
         let guardados = localStorage.getItem('agrosmart_lotes');
         if (guardados) {
@@ -239,11 +298,11 @@
                     layer.featureId = index;
                     drawnItems.addLayer(layer);
                     layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                    layer.bindPopup(`<strong>Lote:</strong> ${item.codigo}<br><strong>Área:</strong> ${item.ha.toFixed(4)} ha`);
                     listaLotesDatos.push(item);
                 });
                 actualizarTablaLotes();
-            } catch (e) { console.error("Error al cargar lotes"); }
+                actualizarSelectsLotes();
+            } catch (e) {}
         }
     }
 
@@ -251,7 +310,6 @@
         localStorage.setItem('agrosmart_lotes', JSON.stringify(listaLotesDatos));
     }
 
-    // Evento al crear un nuevo polígo en el mapa
     mapaSatellital.on(L.Draw.Event.CREATED, function (e) {
         let layer = e.layer;
         let nombreLote = document.getElementById('nombreLoteInput').value.trim() || `LOTE-${listaLotesDatos.length + 1}`;
@@ -260,55 +318,69 @@
         let geojson = layer.toGeoJSON();
         let areaM2 = turf.area(geojson);
         let areaHa = areaM2 / 10000;
+        let centroide = turf.centroid(geojson);
+        let coordsC = centroide.geometry.coordinates; // [lon, lat]
 
         layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-        layer.bindPopup(`<strong>Lote:</strong> ${nombreLote}<br><strong>Área:</strong> ${areaM2.toFixed(2)} m²<br><strong>Área:</strong> ${areaHa.toFixed(4)} ha`);
+        
+        listaLotesDatos.push({ 
+            codigo: nombreLote, 
+            ha: areaHa, 
+            geojson: geojson, 
+            lat: coordsC[1].toFixed(5), 
+            lon: coordsC[0].toFixed(5) 
+        });
 
-        listaLotesDatos.push({ codigo: nombreLote, m2: areaM2, ha: areaHa, geojson: geojson });
         guardarLotesEnMemoria();
         actualizarTablaLotes();
+        actualizarSelectsLotes();
         document.getElementById('nombreLoteInput').value = "";
-        alert(`✅ Lote "${nombreLote}" guardado automáticamente.`);
+        alert(`✅ Lote "${nombreLote}" guardado.`);
     });
 
-    // Función protegida para eliminar un lote individual con PIN
     function eliminarLoteSeguro(index) {
-        let pin = prompt("🔒 [ADMIN] Ingrese el PIN de seguridad (2026) para eliminar este lote:");
+        let pin = prompt("🔒 [ADMIN] Ingrese PIN (2026):");
         if (pin === PIN_ADMIN) {
-            if (confirm(`¿Estás seguro de eliminar el lote "${listaLotesDatos[index].codigo}"?`)) {
+            if (confirm("¿Eliminar este lote?")) {
                 listaLotesDatos.splice(index, 1);
                 guardarLotesEnMemoria();
-                
-                // Refrescar mapa
                 drawnItems.clearLayers();
                 listaLotesDatos.forEach((item) => {
                     let layer = L.geoJSON(item.geojson).getLayers()[0];
                     drawnItems.addLayer(layer);
                     layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                    layer.bindPopup(`<strong>Lote:</strong> ${item.codigo}<br><strong>Área:</strong> ${item.ha.toFixed(4)} ha`);
                 });
                 actualizarTablaLotes();
-                alert("✅ Lote eliminado correctamente.");
+                actualizarSelectsLotes();
+                alert("✅ Lote eliminado.");
             }
-        } else if (pin !== null) {
-            alert("❌ PIN Incorrecto. Acción denegada.");
-        }
+        } else if (pin !== null) { alert("❌ PIN Incorrecto."); }
     }
 
-    // Función protegida para borrar todo el catastro con PIN
     function limpiarTodoSeguro() {
-        let pin = prompt("🔒 [ADMIN] Ingrese el PIN maestro (2026) para vaciar todo el catastro:");
+        let pin = prompt("🔒 [ADMIN] Ingrese PIN maestro (2026):");
         if (pin === PIN_ADMIN) {
-            if (confirm("⚠️ ¿Estás completamente seguro de borrar todos los lotes del sistema?")) {
+            if (confirm("⚠️ ¿Vaciar todo el catastro?")) {
                 localStorage.removeItem('agrosmart_lotes');
                 listaLotesDatos = [];
                 drawnItems.clearLayers();
                 actualizarTablaLotes();
-                alert("🗑️ Sistema catastral restablecido.");
+                actualizarSelectsLotes();
+                alert("🗑️ Catastro vaciado.");
             }
-        } else if (pin !== null) {
-            alert("❌ PIN Incorrecto. Acción denegada.");
-        }
+        } else if (pin !== null) { alert("❌ PIN Incorrecto."); }
+    }
+
+    function exportarGeoJSON() {
+        if (listaLotesDatos.length === 0) { alert("⚠️ No hay lotes para exportar."); return; }
+        let fc = turf.featureCollection(listaLotesDatos.map(l => l.geojson));
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fc));
+        let dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", "catastro_agrosmart.geojson");
+        document.body.appendChild(dlAnchor);
+        dlAnchor.click();
+        dlAnchor.remove();
     }
 
     function actualizarTablaLotes() {
@@ -321,19 +393,71 @@
         listaLotesDatos.forEach((lote, index) => {
             let fila = tbody.insertRow();
             fila.insertCell(0).innerHTML = `<strong>${lote.codigo}</strong>`;
-            fila.insertCell(1).innerText = lote.m2.toLocaleString('es-PE', { maximumFractionDigits: 2 }) + " m²";
-            fila.insertCell(2).innerText = lote.ha.toFixed(4) + " ha";
-            
-            let celdaAccion = fila.insertCell(3);
+            fila.insertCell(1).innerText = lote.ha.toFixed(4) + " ha";
+            fila.insertCell(2).innerText = `${lote.lat}, ${lote.lon}`;
             let btn = document.createElement('button');
             btn.className = 'delete-btn';
             btn.innerText = '🛡️ Eliminar';
             btn.onclick = () => eliminarLoteSeguro(index);
-            celdaAccion.appendChild(btn);
+            fila.insertCell(3).appendChild(btn);
         });
     }
 
-    // Iniciar cargando los lotes guardados al abrir
+    function actualizarSelectsLotes() {
+        let selRiego = document.getElementById('selectLoteRiego');
+        let selPlant = document.getElementById('selectLotePlantacion');
+        selRiego.innerHTML = '<option value="">-- Seleccionar Lote --</option>';
+        selPlant.innerHTML = '<option value="">-- Seleccionar Lote --</option>';
+        
+        listaLotesDatos.forEach((lote, index) => {
+            let opt1 = document.createElement('option');
+            opt1.value = index; opt1.innerText = `${lote.codigo} (${lote.ha.toFixed(2)} ha)`;
+            selRiego.appendChild(opt1);
+
+            let opt2 = document.createElement('option');
+            opt2.value = index; opt2.innerText = `${lote.codigo} (${lote.ha.toFixed(2)} ha)`;
+            selPlant.appendChild(opt2);
+        });
+    }
+
+    // --- 3. DEMANDA HÍDRICA POR LOTE ---
+    function calcularRiegoLote() {
+        let idx = document.getElementById('selectLoteRiego').value;
+        let kc = parseFloat(document.getElementById('kcLoteInput').value);
+        if(idx === "") { alert("⚠️ Selecciona un lote."); return; }
+        let lote = listaLotesDatos[idx];
+        let etc = 4.6 * kc;
+        let volM3 = etc * 10 * lote.ha;
+
+        let box = document.getElementById('resultadoRiegoLote');
+        box.style.display = "block";
+        box.innerHTML = `💧 <strong>Demanda Hídrica [${lote.codigo}]:</strong><br>` +
+                        `• Superficie: <strong>${lote.ha.toFixed(4)} ha</strong><br>` +
+                        `• Requerimiento (ETc): <strong>${etc.toFixed(2)} mm/día</strong><br>` +
+                        `• Volumen Total: <strong>${volM3.toFixed(1)} m³/día</strong>`;
+    }
+
+    // --- 4. DENSIDAD DE PLANTACIÓN ---
+    function calcularDensidadPlantas() {
+        let idx = document.getElementById('selectLotePlantacion').value;
+        let dSurco = parseFloat(document.getElementById('distSurcos').value);
+        let dPlanta = parseFloat(document.getElementById('distPlantas').value);
+        if(idx === "") { alert("⚠️ Selecciona un lote."); return; }
+        if(dSurco <= 0 || dPlanta <= 0) { alert("⚠️ Las distancias deben ser mayores a 0."); return; }
+        
+        let lote = listaLotesDatos[idx];
+        let areaM2 = lote.ha * 10000;
+        let areaPorPlanta = dSurco * dPlanta;
+        let totalPlantas = Math.round(areaM2 / areaPorPlanta);
+
+        let box = document.getElementById('resultadoPlantacion');
+        box.style.display = "block";
+        box.innerHTML = `🌱 <strong>Densidad de Plantación [${lote.codigo}]:</strong><br>` +
+                        `• Marco de Siembra: <strong>${dSurco} m x ${dPlanta} m</strong><br>` +
+                        `• Área Total: <strong>${areaM2.toLocaleString()} m² (${lote.ha.toFixed(2)} ha)</strong><br>` +
+                        `• Número Total Estimado de Plantas: <strong>${totalPlantas.toLocaleString()} individuos</strong>`;
+    }
+
     cargarLotesGuardados();
 </script>
 
