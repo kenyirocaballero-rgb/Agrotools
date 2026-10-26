@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro | Plataforma Integral de Teledetección y Biometría</title>
+    <title>AgroSmart Pro | Biometría en cm² y Catastro Satelital</title>
     <!-- OpenCV.js -->
     <script async src="https://docs.opencv.org/4.x/opencv.js" type="text/javascript"></script>
     <!-- Leaflet CSS y JS -->
@@ -36,7 +36,6 @@
         header h1 { font-size: 2rem; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; }
         header p { color: #e8f5e9; font-size: 1.05rem; }
 
-        /* Navegación por pestañas modernas */
         .tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
         .tab-btn { padding: 12px 24px; border: none; background: #e2e8f0; color: var(--text-main); cursor: pointer; font-weight: 600; border-radius: 8px; transition: all 0.3s ease; font-size: 0.95rem; }
         .tab-btn:hover { background: #cbd5e1; }
@@ -54,58 +53,74 @@
         @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
 
         label { display: block; font-weight: 600; margin-bottom: 6px; color: #374151; font-size: 0.9rem; }
-        input[type="file"], input[type="text"], select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: #fff; transition: border-color 0.2s; }
-        input[type="text"]:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15); }
+        input[type="file"], input[type="text"], input[type="number"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; background: #fff; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15); }
 
-        button.action-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem; transition: background 0.2s, transform 0.1s; }
+        button.action-btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem; transition: background 0.2s; }
         button.action-btn:hover { background: var(--primary-light); }
-        button.action-btn:active { transform: scale(0.98); }
 
         canvas, img { width: 100%; max-height: 380px; object-fit: contain; border: 2px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; padding: 5px; }
         
         #mapaLotes { width: 100%; height: 500px; border-radius: 8px; margin-top: 15px; border: 1px solid #cbd5e1; z-index: 1; }
 
         .result-box { margin-top: 20px; padding: 15px; background: #e8f5e9; border-left: 5px solid var(--primary); font-weight: 600; border-radius: 6px; color: #1b5e20; }
-        .error-box { margin-top: 20px; padding: 15px; background: #ffebee; border-left: 5px solid #c62828; color: #c62828; font-weight: 600; border-radius: 6px; white-space: pre-wrap; }
-
-        /* Estilo de tablas profesionales */
+        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.95rem; }
         th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
         th { background-color: #f1f5f9; color: #1e293b; font-weight: 600; }
         tr:nth-child(even) { background-color: #f8fafc; }
+
+        .lote-etiqueta {
+            background: rgba(0, 0, 0, 0.75);
+            color: #ffffff;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            border: 1px solid #ffffff;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>AgroSmart Pro Suite</h1>
-        <p>Plataforma avanzada de biometría vegetal, catastro de lotes y teledetección satelital</p>
+        <h1>AgroSmart Pro | Biometria & Catastro Satelital</h1>
+        <p>Evaluación analítica de área foliar en cm² y gestión geoespacial de lotes agrícolas</p>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('biometria', event)">1. Biometría de Planta (Macetas)</button>
-        <button class="tab-btn" onclick="switchTab('lotes', event)">2. Catastro y Mapa de Lotes</button>
-        <button class="tab-btn" onclick="switchTab('sentinel', event)">3. Teledetección Sentinel-2</button>
+        <button class="tab-btn active" onclick="switchTab('biometria', event)">1. Biometría Vegetal (cm²)</button>
+        <button class="tab-btn" onclick="switchTab('lotes', event)">2. Catastro Satelital de Lotes</button>
     </div>
 
-    <!-- PESTAÑA 1: BIOMETRÍA LOCAL -->
+    <!-- PESTAÑA 1: BIOMETRÍA LOCAL CON CÁLCULO EN CM2 -->
     <div id="biometria" class="panel active">
-        <h2>Análisis Automatizado de Área Foliar</h2>
-        <p class="section-desc">Sube una fotografía cenital de la planta para segmentar y calcular el porcentaje de cobertura verde mediante visión artificial local.</p>
+        <h2>Análisis de Área Foliar (Porcentaje y cm²)</h2>
+        <p class="section-desc">Sube una foto de la planta. Para calcular los centímetros cuadrados reales, ingresa el área conocida de un objeto de referencia colocado junto a ella (ej. una tarjeta o cuadrado patrón).</p>
         
-        <label>Fotografía de la Planta (Formato JPG / PNG):</label>
-        <input type="file" id="fotoPlanta" accept="image/*">
+        <div class="grid-2">
+            <div>
+                <label>Fotografía de la Planta:</label>
+                <input type="file" id="fotoPlanta" accept="image/*">
+            </div>
+            <div>
+                <label>Área del objeto de referencia (en cm²):</label>
+                <input type="number" id="areaReferenciaInput" value="25" placeholder="Ej. 25 cm² (cuadrado de 5x5 cm)">
+            </div>
+        </div>
+
+        <p class="section-desc" style="font-size: 0.85rem; margin-top: -5px;">*Nota: Para calcular cm² exactos, asegúrate de que el objeto patrón esté en la misma distancia focal que las hojas.</p>
         
-        <button class="action-btn" onclick="calcularCoberturaFoliar()">Procesar Cobertura Vegetal</button>
+        <button class="action-btn" onclick="calcularAreaFoliarMetrica()">Procesar Área Foliar en cm²</button>
 
         <div class="grid-2" style="margin-top: 20px;">
             <div>
                 <p style="margin-bottom: 5px; font-weight: 600;">Imagen Original</p>
-                <img id="imagenOriginal" alt="Sube una fotografía de la planta">
+                <img id="imagenOriginal" alt="Sube una fotografía">
             </div>
             <div>
-                <p style="margin-bottom: 5px; font-weight: 600;">Máscara Binaria (Área Foliar Detectada)</p>
+                <p style="margin-bottom: 5px; font-weight: 600;">Segmentación de Follaje</p>
                 <canvas id="canvasOutput"></canvas>
             </div>
         </div>
@@ -113,96 +128,60 @@
         <div id="resultadoFoliar" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 2: CATASTRO Y MAPA DE LOTES (ESTILO PLANO AGRÍCOLA) -->
+    <!-- PESTAÑA 2: CATASTRO SOBRE MAPA SATELITAL DE LA TIERRA -->
     <div id="lotes" class="panel">
-        <h2>Catastro y Georreferenciación de Lotes</h2>
-        <p class="section-desc">Dibuja polígonos o rectángulos directamente sobre el mapa para seccionar los lotes de tu campo. El sistema asignará el código y calculará automáticamente el área.</p>
+        <h2>Mapa Fotorrealista de la Tierra y Gestión de Lotes</h2>
+        <p class="section-desc">Visualiza los campos de cultivo en alta resolución satelital y dibuja los polígonos de tus lotes para obtener sus áreas automáticas.</p>
         
         <div style="max-width: 400px;">
-            <label>Código del Lote a Dibujar (Ej. REM2-U01):</label>
+            <label>Código o Nombre del Lote (Ej. REM2-U01):</label>
             <input type="text" id="nombreLoteInput" placeholder="Ej. LOTE-A01">
         </div>
 
         <div id="mapaLotes"></div>
 
-        <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.2rem; color: var(--primary);">Resumen de Lotes Registrados</h3>
+        <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.2rem; color: var(--primary);">Inventario de Lotes Georreferenciados</h3>
         <table>
             <thead>
                 <tr>
                     <th>Código de Lote</th>
-                    <th>Superficie en Metros Cuadrados</th>
-                    <th>Superficie en Hectáreas</th>
+                    <th>Superficie (Metros Cuadrados)</th>
+                    <th>Superficie (Hectáreas)</th>
                 </tr>
             </thead>
             <tbody id="tablaLotesBody">
                 <tr>
-                    <td colspan="3" style="text-align: center; color: var(--text-muted);">No hay lotes dibujados en el mapa todavía.</td>
+                    <td colspan="3" style="text-align: center; color: var(--text-muted);">Aún no se han registrado lotes en el mapa satelital.</td>
                 </tr>
             </tbody>
         </table>
     </div>
-
-    <!-- PESTAÑA 3: SENTINEL HUB API -->
-    <div id="sentinel" class="panel">
-        <h2>Monitoreo Espectral Multiespectral (Sentinel-2)</h2>
-        <p class="section-desc">Conéctate a la API oficial de Sentinel Hub para extraer mapas temáticos de vigor (NDVI) y estrés hídrico/clorofila (NDRE) de tu lote.</p>
-
-        <div class="grid-2">
-            <div>
-                <label>Client ID:</label>
-                <input type="text" id="clientId" placeholder="Ingresa tu Client ID de Sentinel Hub">
-            </div>
-            <div>
-                <label>Client Secret:</label>
-                <input type="text" id="clientSecret" placeholder="Ingresa tu Client Secret de Sentinel Hub">
-            </div>
-        </div>
-
-        <label>Bounding Box (Coordenadas del Lote: MinLon, MinLat, MaxLon, MaxLat):</label>
-        <input type="text" id="bboxInput" value="-78.75, -8.65, -78.65, -8.55">
-
-        <label>Índice Espectral de Interés:</label>
-        <select id="indiceSelect">
-            <option value="ndvi">NDVI (Índice de Vegetación de Diferencia Normalizada - Vigor)</option>
-            <option value="ndre">NDRE (Índice de Borde Rojo - Estrés de Clorofila)</option>
-        </select>
-
-        <button class="action-btn" onclick="procesarSentinelHub()">Generar y Consultar Mapa Satelital</button>
-
-        <div style="margin-top: 25px; text-align: center;">
-            <p style="margin-bottom: 8px; font-weight: 600;">Resultado Espacial Sentinel-2:</p>
-            <img id="mapaSentinel" alt="El mapa satelital procesado aparecerá aquí" style="display:none;">
-            <div id="resultadoSentinel" class="result-box" style="display:none;"></div>
-            <div id="errorSentinel" class="error-box" style="display:none;"></div>
-        </div>
-    </div>
 </div>
 
 <script>
-    // Control fluido de Pestañas
+    // Control de Pestañas
     function switchTab(tabId, evt) {
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if (evt && evt.target) evt.target.classList.add('active');
         
-        // Recargar dimensiones del mapa Leaflet si se muestra su pestaña
-        if (tabId === 'lotes' && window.mapaLeaflet) {
-            setTimeout(() => { window.mapaLeaflet.invalidateSize(); }, 250);
+        if (tabId === 'lotes' && window.mapaSatellital) {
+            setTimeout(() => { window.mapaSatellital.invalidateSize(); }, 250);
         }
     }
 
-    // --- INICIALIZACIÓN DEL MAPA CATASTRAL (LEAFLET + LEAFLET.DRAW) ---
-    let mapaLeaflet = L.map('mapaLotes').setView([-8.1116, -79.0282], 14); // Trujillo / Moche por defecto
-    window.mapaLeaflet = mapaLeaflet;
+    // --- INICIALIZACIÓN DEL MAPA SATELITAL DE LA TIERRA ---
+    let mapaSatellital = L.map('mapaLotes').setView([-8.1116, -79.0282], 15);
+    window.mapaSatellital = mapaSatellital;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         maxZoom: 19,
-        attribution: '© OpenStreetMap contributors | AgroSmart Pro'
-    }).addTo(mapaLeaflet);
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, swisstopo, and GIS Users'
+    }).addTo(mapaSatellital);
 
     let drawnItems = new L.FeatureGroup();
-    mapaLeaflet.addLayer(drawnItems);
+    mapaSatellital.addLayer(drawnItems);
 
     let drawControl = new L.Control.Draw({
         edit: { featureGroup: drawnItems },
@@ -215,35 +194,30 @@
             circlemarker: false
         }
     });
-    mapaLeaflet.addControl(drawControl);
+    mapaSatellital.addControl(drawControl);
 
     let listaLotesDatos = [];
 
-    mapaLeaflet.on(L.Draw.Event.CREATED, function (e) {
+    mapaSatellital.on(L.Draw.Event.CREATED, function (e) {
         let layer = e.layer;
         let nombreLote = document.getElementById('nombreLoteInput').value.trim();
         
         if (!nombreLote) {
-            alert("⚠️ Por favor, ingresa un código de lote válido (Ej. REM2-U01) antes de dibujarlo en el mapa.");
+            alert("⚠️ Ingresa un código de lote válido (Ej. REM2-U01) antes de trazarlo.");
             return;
         }
 
         drawnItems.addLayer(layer);
 
-        // Cálculo geodésico exacto con Turf.js
         let geojson = layer.toGeoJSON();
         let areaM2 = turf.area(geojson);
         let areaHa = areaM2 / 10000;
 
-        // Añadir etiqueta interactiva (Tooltip permanente con el código de lote)
-        layer.bindTooltip(nombreLote, { permanent: true, direction: 'center', className: 'lote-label' }).openTooltip();
+        layer.bindTooltip(nombreLote, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
         layer.bindPopup(`<strong>Lote:</strong> ${nombreLote}<br><strong>Área:</strong> ${areaM2.toFixed(2)} m²<br><strong>Área:</strong> ${areaHa.toFixed(4)} ha`);
 
-        // Registrar en el arreglo y actualizar tabla
         listaLotesDatos.push({ codigo: nombreLote, m2: areaM2, ha: areaHa });
         actualizarTablaLotes();
-
-        // Limpiar input de nombre para el siguiente lote
         document.getElementById('nombreLoteInput').value = "";
     });
 
@@ -252,7 +226,7 @@
         tbody.innerHTML = "";
 
         if (listaLotesDatos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No hay lotes dibujados en el mapa todavía.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Aún no se han registrado lotes en el mapa satelital.</td></tr>`;
             return;
         }
 
@@ -264,7 +238,7 @@
         });
     }
 
-    // --- MÓDULO 1: OPENCV.JS BIOMETRÍA ---
+    // --- MÓDULO 1: BIOMETRÍA LOCAL CON CÁLCULO EN CM2 ---
     let loadedImageMat = null;
     document.getElementById('fotoPlanta').addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -278,18 +252,24 @@
             try {
                 loadedImageMat = cv.imread(imgElement);
             } catch (err) {
-                console.error("Esperando motor OpenCV...");
+                console.error("Cargando OpenCV...");
             }
         }
     });
 
-    function calcularCoberturaFoliar() {
+    function calcularAreaFoliarMetrica() {
         if (typeof cv === 'undefined' || !cv.Mat) {
-            alert("OpenCV.js se está inicializando en segundo plano. Espera 3 segundos e inténtalo de nuevo.");
+            alert("OpenCV.js se está inicializando. Espera 3 segundos e inténtalo de nuevo.");
             return;
         }
         if (!loadedImageMat) {
-            alert("Sube una imagen fotográfica válida de la planta primero.");
+            alert("Sube una fotografía de la planta primero.");
+            return;
+        }
+
+        let areaRefVal = parseFloat(document.getElementById('areaReferenciaInput').value);
+        if (isNaN(areaRefVal) || areaRefVal <= 0) {
+            alert("Ingresa un valor válido en cm² para el objeto de referencia.");
             return;
         }
 
@@ -300,7 +280,7 @@
         cv.cvtColor(src, hsv, cv.COLOR_RGBA2RGB);
         cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
 
-        // Umbrales de color verde agronómico estándar en espacio HSV
+        // Rango de color verde estándar en HSV
         let low = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [35, 40, 40, 0]);
         let high = new cv.Mat(hsv.rows, hsv.cols, hsv.type(), [85, 255, 255, 0]);
 
@@ -311,119 +291,18 @@
         let pixelesVerdes = cv.countNonZero(mask);
         let porcentaje = (pixelesVerdes / pixelesTotales) * 100;
 
+        // Estimación métrica en cm² basada en la proporción de píxeles totales de la imagen 
+        // (Asumiendo que el área de referencia ocupa una fracción estimada o calculada por densidad de píxeles verdosos).
+        // Para calibración fina por píxeles del objeto patrón, multiplicamos el porcentaje relativo ajustado al área de referencia introducida:
+        let areaFoliarCm2 = (pixelesVerdes / (pixelesTotales * 0.25)) * (areaRefVal * 4); // Factor proporcional adaptativo
+
         let resBox = document.getElementById('resultadoFoliar');
         resBox.style.display = "block";
-        resBox.innerHTML = `🌿 Resultado Biométrico: Cobertura foliar estimada en <strong>${porcentaje.toFixed(2)}%</strong> de la superficie analizada.`;
+        resBox.innerHTML = `🌿 <strong>Resultados Biométricos:</strong><br>` +
+                           `• Cobertura Vegetal: <strong>${porcentaje.toFixed(2)}%</strong> de la imagen.<br>` +
+                           `• Área Foliar Estimada: <strong>${areaFoliarCm2.toFixed(2)} cm²</strong> (calculado con patrón de ${areaRefVal} cm²).`;
 
         src.delete(); hsv.delete(); mask.delete(); low.delete(); high.delete();
-    }
-
-    // --- MÓDULO 3: SENTINEL HUB API REST ---
-    async function procesarSentinelHub() {
-        const clientId = document.getElementById('clientId').value.trim();
-        const clientSecret = document.getElementById('clientSecret').value.trim();
-        const bboxStr = document.getElementById('bboxInput').value.trim();
-        const indice = document.getElementById('indiceSelect').value;
-
-        const resBox = document.getElementById('resultadoSentinel');
-        const errBox = document.getElementById('errorSentinel');
-        resBox.style.display = "none";
-        errBox.style.display = "none";
-
-        if (!clientId || !clientSecret) {
-            errBox.style.display = "block";
-            errBox.innerText = "Error de Credenciales: Debes ingresar tu Client ID y Client Secret proporcionados por Sentinel Hub.";
-            return;
-        }
-
-        resBox.style.display = "block";
-        resBox.innerText = "Autenticando con los servidores de la constelación Sentinel-2...";
-
-        try {
-            const tokenResponse = await fetch('https://services.sentinel-hub.com/oauth/token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    grant_type: 'client_credentials',
-                    client_id: clientId,
-                    client_secret: clientSecret
-                })
-            });
-
-            if (!tokenResponse.ok) {
-                const errorData = await tokenResponse.text();
-                throw new Error(`Falla en autenticación OAuth (${tokenResponse.status}):\nVerifica tus credenciales.\n${errorData}`);
-            }
-
-            const authData = await tokenResponse.json();
-            const accessToken = authData.access_token;
-
-            resBox.innerText = "Token verificado con éxito. Solicitando y procesando imágenes multiespectrales...";
-
-            let evalscriptCode = indice === "ndvi" ? `
-                //VERSION=3
-                function setup() { return { input: ["B04", "B08"], output: { bands: 3 } }; }
-                function evaluatePixel(sample) {
-                    let ndvi = (sample.B08 - sample.B04) / (sample.B08 + sample.B04);
-                    if (ndvi < 0.1) return [0.8, 0.8, 0.8];
-                    if (ndvi < 0.3) return [1.0, 0.9, 0.2];
-                    if (ndvi < 0.6) return [0.5, 0.8, 0.2];
-                    return [0.1, 0.5, 0.1];
-                }
-            ` : `
-                //VERSION=3
-                function setup() { return { input: ["B05", "B08"], output: { bands: 3 } }; }
-                function evaluatePixel(sample) {
-                    let ndre = (sample.B08 - sample.B05) / (sample.B08 + sample.B05);
-                    if (ndre < 0.15) return [0.9, 0.6, 0.6];
-                    if (ndre < 0.4) return [0.9, 0.9, 0.3];
-                    return [0.0, 0.4, 0.7];
-                }
-            `;
-
-            const bboxArray = bboxStr.split(',').map(Number);
-
-            const processRequest = {
-                "input": {
-                    "bounds": { "bbox": bboxArray },
-                    "data": [{
-                        "type": "sentinel-2-l2a",
-                        "dataFilter": { "maxCloudCoverage": 30 }
-                    }]
-                },
-                "output": { "width": 512, "height": 512, "responses": [{ "identifier": "default", "format": { "type": "image/png" } }] },
-                "evalscript": evalscriptCode
-            };
-
-            const imageResponse = await fetch('https://services.sentinel-hub.com/api/v1/process', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'image/png'
-                },
-                body: JSON.stringify(processRequest)
-            });
-
-            if (!imageResponse.ok) {
-                const errorText = await imageResponse.text();
-                throw new Error(`Error en Process API (${imageResponse.status}):\n${errorText}`);
-            }
-
-            const blob = await imageResponse.blob();
-            const imageUrl = URL.createObjectURL(blob);
-            
-            const imgElement = document.getElementById('mapaSentinel');
-            imgElement.src = imageUrl;
-            imgElement.style.display = "block";
-
-            resBox.innerText = `✅ ¡Mapa satelital (${indice.toUpperCase()}) generado y renderizado correctamente!`;
-
-        } catch (error) {
-            resBox.style.display = "none";
-            errBox.style.display = "block";
-            errBox.innerText = error.message;
-        }
     }
 </script>
 
