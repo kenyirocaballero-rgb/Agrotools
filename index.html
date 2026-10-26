@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Scouting & GIS Suite</title>
+    <title>AgroSmart Pro Enterprise | Persistent GeoSuite</title>
     
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -51,6 +51,8 @@
         .delete-all-btn:hover { background: #b91c1c; }
         .export-btn { background: #0284c7; }
         .export-btn:hover { background: #02699c; }
+        .backup-btn { background: #7c3aed; }
+        .backup-btn:hover { background: #6d28d9; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
@@ -80,13 +82,13 @@
 <div class="container">
     <header>
         <h1>AgroSmart Pro Enterprise</h1>
-        <p>Suite Profesional con Biometría, Catastro GIS, Hidráulica y Scouting Fitosanitario</p>
+        <p>Suite Unificada con Respaldo de Datos y Sincronización Permanente de Polígonos y Puntos</p>
     </header>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Biometría</button>
-        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 2. Catastro GIS</button>
-        <button class="tab-btn" onclick="switchTab('scouting', event)">🔍 3. Scouting de Plagas</button>
+        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 2. Catastro de Polígonos GIS</button>
+        <button class="tab-btn" onclick="switchTab('scouting', event)">🔍 3. Scouting de Puntos (Plagas)</button>
         <button class="tab-btn" onclick="switchTab('riego', event)">💧 4. Hidráulica</button>
         <button class="tab-btn" onclick="switchTab('plantacion', event)">🌱 5. Densidad & Yield</button>
     </div>
@@ -116,38 +118,44 @@
         <div id="resultadoFoliar" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 2: CATASTRO GIS -->
+    <!-- PESTAÑA 2: CATASTRO DE POLÍGONOS GIS -->
     <div id="lotes" class="panel">
-        <h2>Catastro Geodésico y Ubicación GPS</h2>
+        <h2>Catastro de Polígonos de Lotes con Respaldo y Carga Dinámica</h2>
         <div class="grid-3">
             <div>
                 <label>Código del Lote:</label>
                 <input type="text" id="nombreLoteInput" placeholder="Ej. LOTE-01">
             </div>
-            <div style="display: flex; align-items: flex-end;">
-                <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7;">📍 Ir a mi GPS</button>
+            <div>
+                <label>Restaurar Respaldo JSON:</label>
+                <input type="file" id="importFile" accept=".json" onchange="importarRespaldoJSON(event)">
             </div>
-            <div style="display: flex; align-items: flex-end;">
-                <button class="action-btn export-btn" onclick="exportarGeoJSON()">📥 Exportar GeoJSON</button>
+            <div style="display: flex; align-items: flex-end; gap: 8px;">
+                <button class="action-btn backup-btn" onclick="descargarRespaldoJSON()">💾 Guardar Backup</button>
+                <button class="action-btn delete-all-btn" onclick="limpiarTodoLotesSeguro()">🗑️ Borrar</button>
             </div>
+        </div>
+        <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS</button>
+            <button class="action-btn export-btn" onclick="exportarGeoJSON()" style="width: auto;">📥 Exportar GeoJSON</button>
         </div>
         <div id="mapaLotes"></div>
         <table>
             <thead>
-                <tr><th>Código</th><th>Área (ha)</th><th>Perímetro (m)</th><th>Centroide (Lat, Lon)</th><th>Acción</th></tr>
+                <tr><th>Código del Lote</th><th>Área (Hectáreas)</th><th>Perímetro (m)</th><th>Centroide (Lat, Lon)</th><th>Acción Protegida</th></tr>
             </thead>
-            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Sin lotes guardados.</td></tr></tbody>
+            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Sin polígonos catastrados. Dibuja en el mapa.</td></tr></tbody>
         </table>
     </div>
 
-    <!-- PESTAÑA 3: NUEVO MÓDULO - SCOUTING DE PLAGAS -->
+    <!-- PESTAÑA 3: SCOUTING DE PUNTOS (PLAGAS) -->
     <div id="scouting" class="panel">
-        <h2>Mapa de Evaluación y Registro de Plagas en Campo</h2>
-        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Haz clic directamente sobre cualquier punto del mapa para registrar una incidencia fitosanitaria.</p>
+        <h2>Mapa y Registro de Puntos de Scouting Fitosanitario</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Haz clic en cualquier punto del mapa para registrar una incidencia, ver coordenadas y gestionar la tabla exportable.</p>
         
         <div class="grid-3">
             <div>
-                <label>Plaga / Patógeno Detectado:</label>
+                <label>Plaga / Patógeno Registrado:</label>
                 <input type="text" id="plagaInput" placeholder="Ej. Phytophthora cinnamomi">
             </div>
             <div>
@@ -159,14 +167,14 @@
                 </select>
             </div>
             <div style="display: flex; align-items: flex-end; gap: 10px;">
-                <button class="action-btn export-btn" onclick="exportarTablaCSV()" style="background: #0284c7;">📊 Exportar CSV</button>
-                <button class="action-btn delete-all-btn" onclick="limpiarScoutingSeguro()" style="background: #dc2626;">🗑️ Borrar</button>
+                <button class="action-btn export-btn" onclick="exportarTablaScoutingCSV()" style="background: #0284c7;">📊 Exportar CSV</button>
+                <button class="action-btn delete-all-btn" onclick="limpiarScoutingSeguro()" style="background: #dc2626;">🗑️ Borrar Puntos</button>
             </div>
         </div>
 
         <div id="mapaScouting"></div>
 
-        <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Registro de Puntos de Evaluación Fitosanitaria</h3>
+        <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Tabla Dinámica de Puntos de Monitoreo</h3>
         <table>
             <thead>
                 <tr><th>ID Punto</th><th>Plaga / Patógeno</th><th>Severidad</th><th>Coordenadas (Lat, Lon)</th><th>Fecha / Hora</th><th>Acción</th></tr>
@@ -230,6 +238,8 @@
 
 <script>
     const PIN_ADMIN = "2026";
+    const STORAGE_KEY_LOTES = "agrosmart_lotes_v2_persistent";
+    const STORAGE_KEY_SCOUTING = "agrosmart_scouting_v2_persistent";
 
     function switchTab(tabId, evt) {
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -237,7 +247,6 @@
         document.getElementById(tabId).classList.add('active');
         if (evt && evt.target) evt.target.classList.add('active');
         
-        // Forzar actualización de mapas al cambiar de pestaña
         setTimeout(() => {
             if (tabId === 'lotes' && window.mapaSatellital) window.mapaSatellital.invalidateSize();
             if (tabId === 'scouting' && window.mapaScouting) window.mapaScouting.invalidateSize();
@@ -300,7 +309,7 @@
                         `• Índice de Área Foliar (LAI): <strong>${lai.toFixed(2)} m² hoja / m² suelo</strong>`;
     }
 
-    // --- 2. CATASTRO GIS & GPS CORREGIDO ---
+    // --- 2. CATASTRO DE POLÍGONOS GIS & RESPALDO ---
     let capaSatellites = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri' });
     let capaCalles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: 'OSM' });
 
@@ -318,25 +327,24 @@
     let listaLotesDatos = [];
 
     function ubicarGPSMapaLotes() {
-        if (!navigator.geolocation) { alert("⚠️ GPS no soportado por tu navegador."); return; }
+        if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
         navigator.geolocation.getCurrentPosition((pos) => {
             let lat = pos.coords.latitude, lon = pos.coords.longitude;
             mapaSatellital.setView([lat, lon], 17);
-            L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
-        }, () => { alert("❌ No se pudo obtener la ubicación GPS. Verifica permisos."); }, { enableHighAccuracy: true });
+            L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS!").openPopup();
+        }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
     }
 
     function cargarLotesGuardados() {
-        let guardados = localStorage.getItem('agrosmart_lotes');
+        let guardados = localStorage.getItem(STORAGE_KEY_LOTES);
         if (guardados) {
             try {
-                let parsed = JSON.parse(guardados);
-                parsed.forEach((item, index) => {
+                listaLotesDatos = JSON.parse(guardados);
+                drawnItems.clearLayers();
+                listaLotesDatos.forEach((item) => {
                     let layer = L.geoJSON(item.geojson).getLayers()[0];
-                    layer.featureId = index;
                     drawnItems.addLayer(layer);
                     layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                    listaLotesDatos.push(item);
                 });
                 actualizarTablaLotes();
                 actualizarSelectsLotes();
@@ -359,17 +367,17 @@
         layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
         
         listaLotesDatos.push({ codigo: nombreLote, ha: areaHa, perimetro: perimetroM, geojson: geojson, lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) });
-        localStorage.setItem('agrosmart_lotes', JSON.stringify(listaLotesDatos));
+        localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
         actualizarTablaLotes();
         actualizarSelectsLotes();
         document.getElementById('nombreLoteInput').value = "";
     });
 
-    function eliminarLoteSeguro(index) {
+    function eliminarLoteIndividual(index) {
         let pin = prompt("🔒 PIN de Administrador (2026):");
         if (pin === PIN_ADMIN) {
             listaLotesDatos.splice(index, 1);
-            localStorage.setItem('agrosmart_lotes', JSON.stringify(listaLotesDatos));
+            localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
             drawnItems.clearLayers();
             listaLotesDatos.forEach((item) => {
                 let layer = L.geoJSON(item.geojson).getLayers()[0];
@@ -381,10 +389,10 @@
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
-    function limpiarTodoSeguro() {
+    function limpiarTodoLotesSeguro() {
         let pin = prompt("🔒 PIN de Administrador (2026):");
         if (pin === PIN_ADMIN) {
-            localStorage.removeItem('agrosmart_lotes');
+            localStorage.removeItem(STORAGE_KEY_LOTES);
             listaLotesDatos = [];
             drawnItems.clearLayers();
             actualizarTablaLotes();
@@ -392,17 +400,44 @@
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
+    function descargarRespaldoJSON() {
+        if (listaLotesDatos.length === 0) { alert("⚠️ No hay datos para respaldar."); return; }
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaLotesDatos));
+        let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_respaldo_lotes.json");
+        document.body.appendChild(dl); dl.click(); dl.remove();
+    }
+
+    function importarRespaldoJSON(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    listaLotesDatos = imported;
+                    localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
+                    cargarLotesGuardados();
+                    alert("✅ Respaldo cargado con éxito.");
+                } else {
+                    alert("❌ Formato de archivo inválido.");
+                }
+            } catch(err) { alert("❌ Error al leer el archivo JSON."); }
+        };
+        reader.readAsText(file);
+    }
+
     function exportarGeoJSON() {
-        if (listaLotesDatos.length === 0) { alert("⚠️ Sin lotes."); return; }
+        if (listaLotesDatos.length === 0) { alert("⚠️ No hay polígonos."); return; }
         let fc = turf.featureCollection(listaLotesDatos.map(l => l.geojson));
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fc));
-        let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "catastro.geojson");
+        let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "catastro_lotes.geojson");
         document.body.appendChild(dl); dl.click(); dl.remove();
     }
 
     function actualizarTablaLotes() {
         let tbody = document.getElementById("tablaLotesBody");
-        tbody.innerHTML = listaLotesDatos.length === 0 ? `<tr><td colspan="5" style="text-align: center;">Sin lotes.</td></tr>` : "";
+        tbody.innerHTML = listaLotesDatos.length === 0 ? `<tr><td colspan="5" style="text-align: center;">Sin polígonos catastrados.</td></tr>` : "";
         listaLotesDatos.forEach((lote, index) => {
             let fila = tbody.insertRow();
             fila.insertCell(0).innerHTML = `<strong>${lote.codigo}</strong>`;
@@ -410,22 +445,23 @@
             fila.insertCell(2).innerText = lote.perimetro.toFixed(1) + " m";
             fila.insertCell(3).innerText = `${lote.lat}, ${lote.lon}`;
             let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = '🛡️ Eliminar';
-            btn.onclick = () => eliminarLoteSeguro(index);
+            btn.onclick = () => eliminarLoteIndividual(index);
             fila.insertCell(4).appendChild(btn);
         });
     }
 
-    // --- 3. NUEVO MÓDULO: MAPA Y TABLA DE SCOUTING DE PLAGAS ---
+    // --- 3. SCOUTING DE PUNTOS (PLAGAS) ---
     let mapaScouting = L.map('mapaScouting', { center: [-8.1116, -79.0282], zoom: 15, layers: [L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })] });
     window.mapaScouting = mapaScouting;
     let scoutingLayerGroup = L.layerGroup().addTo(mapaScouting);
     let listaScoutingDatos = [];
 
     function cargarScoutingGuardados() {
-        let guardados = localStorage.getItem('agrosmart_scouting');
+        let guardados = localStorage.getItem(STORAGE_KEY_SCOUTING);
         if (guardados) {
             try {
                 listaScoutingDatos = JSON.parse(guardados);
+                scoutingLayerGroup.clearLayers();
                 listaScoutingDatos.forEach(p => dibujarPuntoScoutingMapa(p));
                 actualizarTablaScouting();
             } catch(e) {}
@@ -441,7 +477,7 @@
 
         let punto = { id: "PT-" + (listaScoutingDatos.length + 1), plaga, severidad, lat: lat.toFixed(5), lon: lon.toFixed(5), fecha };
         listaScoutingDatos.push(punto);
-        localStorage.setItem('agrosmart_scouting', JSON.stringify(listaScoutingDatos));
+        localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
 
         dibujarPuntoScoutingMapa(punto);
         actualizarTablaScouting();
@@ -468,7 +504,7 @@
             let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = 'Eliminar';
             btn.onclick = () => {
                 listaScoutingDatos.splice(index, 1);
-                localStorage.setItem('agrosmart_scouting', JSON.stringify(listaScoutingDatos));
+                localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
                 scoutingLayerGroup.clearLayers();
                 listaScoutingDatos.forEach(item => dibujarPuntoScoutingMapa(item));
                 actualizarTablaScouting();
@@ -480,14 +516,14 @@
     function limpiarScoutingSeguro() {
         let pin = prompt("🔒 PIN de Administrador (2026):");
         if (pin === PIN_ADMIN) {
-            localStorage.removeItem('agrosmart_scouting');
+            localStorage.removeItem(STORAGE_KEY_SCOUTING);
             listaScoutingDatos = [];
             scoutingLayerGroup.clearLayers();
             actualizarTablaScouting();
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
-    function exportarTablaCSV() {
+    function exportarTablaScoutingCSV() {
         if (listaScoutingDatos.length === 0) { alert("⚠️ No hay puntos de scouting."); return; }
         let csv = "ID,Plaga,Severidad,Latitud,Longitud,Fecha\n" + listaScoutingDatos.map(p => `${p.id},"${p.plaga}",${p.severidad},${p.lat},${p.lon},"${p.fecha}"`).join("\n");
         let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
