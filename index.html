@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Ultimate Field Suite</title>
+    <title>AgroSmart Pro Enterprise | Cloud & Field Suite</title>
     
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -82,7 +82,7 @@
 <div class="container">
     <header>
         <h1>AgroSmart Pro Enterprise</h1>
-        <p>Suite Unificada con Respaldo Persistente y Localizador GPS en Todos los Módulos</p>
+        <p>Suite Cloud Multi-Dispositivo con Sincronización en Tiempo Real y GPS</p>
     </header>
 
     <div class="tabs">
@@ -120,7 +120,7 @@
 
     <!-- PESTAÑA 2: CATASTRO DE POLÍGONOS GIS -->
     <div id="lotes" class="panel">
-        <h2>Catastro de Polígonos de Lotes con Respaldo y Carga Dinámica</h2>
+        <h2>Catastro de Polígonos de Lotes (Sincronizado en la Nube)</h2>
         <div class="grid-3">
             <div>
                 <label>Código del Lote:</label>
@@ -144,7 +144,7 @@
             <thead>
                 <tr><th>Código del Lote</th><th>Área (Hectáreas)</th><th>Perímetro (m)</th><th>Centroide (Lat, Lon)</th><th>Acción Protegida</th></tr>
             </thead>
-            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Sin polígonos catastrados. Dibuja en el mapa.</td></tr></tbody>
+            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Cargando polígonos desde la nube...</td></tr></tbody>
         </table>
     </div>
 
@@ -187,7 +187,7 @@
                 <tr><th>ID Punto</th><th>Plaga / Patógeno</th><th>Severidad</th><th>Coordenadas (Lat, Lon)</th><th>Fecha / Hora</th><th>Acción</th></tr>
             </thead>
             <tbody id="tablaScoutingBody">
-                <tr><td colspan="6" style="text-align: center; color: #64748b;">Sin puntos de scouting registrados. Haz clic en el mapa.</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: #64748b;">Cargando puntos de scouting desde la nube...</td></tr>
             </tbody>
         </table>
     </div>
@@ -243,18 +243,34 @@
     </div>
 </div>
 
-<script>
-    const PIN_ADMIN = "2026";
-    const STORAGE_KEY_LOTES = "agrosmart_lotes_v3_persistent";
-    const STORAGE_KEY_SCOUTING = "agrosmart_scouting_v3_persistent";
+<!-- Firebase SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    function switchTab(tabId, evt) {
+    // CONFIGURACIÓN DE FIREBASE (Sustituye con tus credenciales de tu consola Firebase)
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY",
+        authDomain: "tu-proyecto.firebaseapp.com",
+        projectId: "tu-proyecto",
+        storageBucket: "tu-proyecto.appspot.com",
+        messagingSenderId: "TU_SENDER_ID",
+        appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const PIN_ADMIN = "2026";
+    let listaLotesDatos = [];
+    let listaScoutingDatos = [];
+
+    window.switchTab = function(tabId, evt) {
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if (evt && evt.target) evt.target.classList.add('active');
         
-        // Corrección crucial de renderizado de mapas Leaflet al alternar pestañas
         setTimeout(() => {
             if (tabId === 'lotes' && window.mapaSatellital) window.mapaSatellital.invalidateSize();
             if (tabId === 'scouting' && window.mapaScouting) window.mapaScouting.invalidateSize();
@@ -271,7 +287,7 @@
         img.onload = () => { loadedImageObj = img; }
     });
 
-    function procesarBiometriaCompleta() {
+    window.procesarBiometriaCompleta = function() {
         if (!loadedImageObj) { alert("⚠️ Selecciona una fotografía primero."); return; }
         let areaRef = parseFloat(document.getElementById('areaReferenciaInput').value);
         let densPlantas = parseFloat(document.getElementById('densidadPlantaInput').value);
@@ -317,7 +333,7 @@
                         `• Índice de Área Foliar (LAI): <strong>${lai.toFixed(2)} m² hoja / m² suelo</strong>`;
     }
 
-    // --- 2. CATASTRO DE POLÍGONOS GIS & RESPALDO ---
+    // --- 2. CATASTRO DE POLÍGONOS GIS (FIREBASE) ---
     let capaSatellites = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri' });
     let capaCalles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: 'OSM' });
 
@@ -332,35 +348,35 @@
         draw: { polygon: true, rectangle: true, polyline: false, circle: false, marker: false, circlemarker: false }
     }));
 
-    let listaLotesDatos = [];
-
-    function ubicarGPSMapaLotes() {
-        if (!navigator.geolocation) { alert("⚠️ GPS no soportado por tu navegador."); return; }
+    window.ubicarGPSMapaLotes = function() {
+        if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
         navigator.geolocation.getCurrentPosition((pos) => {
             let lat = pos.coords.latitude, lon = pos.coords.longitude;
             mapaSatellital.setView([lat, lon], 17);
             L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
-        }, () => { alert("❌ No se pudo obtener la ubicación GPS."); }, { enableHighAccuracy: true });
+        }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
     }
 
-    function cargarLotesGuardados() {
-        let guardados = localStorage.getItem(STORAGE_KEY_LOTES);
-        if (guardados) {
-            try {
-                listaLotesDatos = JSON.parse(guardados);
-                drawnItems.clearLayers();
-                listaLotesDatos.forEach((item) => {
-                    let layer = L.geoJSON(item.geojson).getLayers()[0];
-                    drawnItems.addLayer(layer);
-                    layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                });
-                actualizarTablaLotes();
-                actualizarSelectsLotes();
-            } catch (e) {}
-        }
+    async function cargarLotesCloud() {
+        try {
+            let querySnapshot = await getDocs(collection(db, "lotes"));
+            listaLotesDatos = [];
+            drawnItems.clearLayers();
+            querySnapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                data.firebaseId = docSnap.id;
+                listaLotesDatos.push(data);
+                let layer = L.geoJSON(data.geojson).getLayers()[0];
+                layer.firebaseId = docSnap.id;
+                drawnItems.addLayer(layer);
+                layer.bindTooltip(`${data.codigo} (${data.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
+            });
+            actualizarTablaLotes();
+            actualizarSelectsLotes();
+        } catch(e) { console.error("Error cargando lotes", e); }
     }
 
-    mapaSatellital.on(L.Draw.Event.CREATED, function (e) {
+    mapaSatellital.on(L.Draw.Event.CREATED, async function (e) {
         let layer = e.layer;
         let nombreLote = document.getElementById('nombreLoteInput').value.trim() || `LOTE-${listaLotesDatos.length + 1}`;
         drawnItems.addLayer(layer);
@@ -372,68 +388,54 @@
         let centroide = turf.centroid(geojson);
         let coordsC = centroide.geometry.coordinates;
 
-        layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
+        let nuevoLote = { codigo: nombreLote, ha: areaHa, perimetro: perimetroM, geojson: geojson, lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) };
         
-        listaLotesDatos.push({ codigo: nombreLote, ha: areaHa, perimetro: perimetroM, geojson: geojson, lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) });
-        localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
-        actualizarTablaLotes();
-        actualizarSelectsLotes();
-        document.getElementById('nombreLoteInput').value = "";
+        try {
+            let docRef = await addDoc(collection(db, "lotes"), nuevoLote);
+            nuevoLote.firebaseId = docRef.id;
+            layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
+            listaLotesDatos.push(nuevoLote);
+            actualizarTablaLotes();
+            actualizarSelectsLotes();
+            document.getElementById('nombreLoteInput').value = "";
+        } catch(err) { alert("❌ Error guardando en la nube."); }
     });
 
-    function eliminarLoteIndividual(index) {
+    window.eliminarLoteIndividual = async function(index) {
         let pin = prompt("🔒 PIN de Administrador (2026):");
         if (pin === PIN_ADMIN) {
+            let lote = listaLotesDatos[index];
+            if (lote.firebaseId) {
+                try {
+                    await deleteDoc(doc(db, "lotes", lote.firebaseId));
+                } catch(e) {}
+            }
             listaLotesDatos.splice(index, 1);
-            localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
-            drawnItems.clearLayers();
-            listaLotesDatos.forEach((item) => {
-                let layer = L.geoJSON(item.geojson).getLayers()[0];
-                drawnItems.addLayer(layer);
-                layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-            });
-            actualizarTablaLotes();
-            actualizarSelectsLotes();
+            cargarLotesCloud();
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
-    function limpiarTodoLotesSeguro() {
+    window.limpiarTodoLotesSeguro = async function() {
         let pin = prompt("🔒 PIN de Administrador (2026):");
         if (pin === PIN_ADMIN) {
-            localStorage.removeItem(STORAGE_KEY_LOTES);
-            listaLotesDatos = [];
-            drawnItems.clearLayers();
-            actualizarTablaLotes();
-            actualizarSelectsLotes();
+            try {
+                let querySnapshot = await getDocs(collection(db, "lotes"));
+                for (let d of querySnapshot.docs) {
+                    await deleteDoc(doc(db, "lotes", d.id));
+                }
+                cargarLotesCloud();
+            } catch(e) {}
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
-    function descargarRespaldoLotesJSON() {
-        if (listaLotesDatos.length === 0) { alert("⚠️ No hay lotes para respaldar."); return; }
+    window.descargarRespaldoLotesJSON = function() {
+        if (listaLotesDatos.length === 0) { alert("⚠️ No hay lotes."); return; }
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaLotesDatos));
         let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_respaldo_lotes.json");
         document.body.appendChild(dl); dl.click(); dl.remove();
     }
 
-    function importarRespaldoLotesJSON(event) {
-        let file = event.target.files[0];
-        if (!file) return;
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    listaLotesDatos = imported;
-                    localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
-                    cargarLotesGuardados();
-                    alert("✅ Respaldo de lotes cargado con éxito.");
-                } else { alert("❌ Formato de archivo inválido."); }
-            } catch(err) { alert("❌ Error al leer el JSON."); }
-        };
-        reader.readAsText(file);
-    }
-
-    function exportarGeoJSON() {
+    window.exportarGeoJSON = function() {
         if (listaLotesDatos.length === 0) { alert("⚠️ No hay polígonos."); return; }
         let fc = turf.featureCollection(listaLotesDatos.map(l => l.geojson));
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fc));
@@ -451,39 +453,41 @@
             fila.insertCell(2).innerText = lote.perimetro.toFixed(1) + " m";
             fila.insertCell(3).innerText = `${lote.lat}, ${lote.lon}`;
             let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = '🛡️ Eliminar';
-            btn.onclick = () => eliminarLoteIndividual(index);
+            btn.onclick = () => window.eliminarLoteIndividual(index);
             fila.insertCell(4).appendChild(btn);
         });
     }
 
-    // --- 3. SCOUTING & GPS (PLAGAS) ---
+    // --- 3. SCOUTING & GPS (FIREBASE) ---
     let mapaScouting = L.map('mapaScouting', { center: [-8.1116, -79.0282], zoom: 15, layers: [L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })] });
     window.mapaScouting = mapaScouting;
     let scoutingLayerGroup = L.layerGroup().addTo(mapaScouting);
-    let listaScoutingDatos = [];
 
-    function ubicarGPSMapaScouting() {
-        if (!navigator.geolocation) { alert("⚠️ GPS no soportado por tu navegador."); return; }
+    window.ubicarGPSMapaScouting = function() {
+        if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
         navigator.geolocation.getCurrentPosition((pos) => {
             let lat = pos.coords.latitude, lon = pos.coords.longitude;
             mapaScouting.setView([lat, lon], 17);
-            L.marker([lat, lon]).addTo(mapaScouting).bindPopup("📍 ¡Tu ubicación GPS actual en Scouting!").openPopup();
-        }, () => { alert("❌ No se pudo obtener la ubicación GPS."); }, { enableHighAccuracy: true });
+            L.marker([lat, lon]).addTo(mapaScouting).bindPopup("📍 ¡Tu ubicación GPS en Scouting!").openPopup();
+        }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
     }
 
-    function cargarScoutingGuardados() {
-        let guardados = localStorage.getItem(STORAGE_KEY_SCOUTING);
-        if (guardados) {
-            try {
-                listaScoutingDatos = JSON.parse(guardados);
-                scoutingLayerGroup.clearLayers();
-                listaScoutingDatos.forEach(p => dibujarPuntoScoutingMapa(p));
-                actualizarTablaScouting();
-            } catch(e) {}
-        }
+    async function cargarScoutingCloud() {
+        try {
+            let querySnapshot = await getDocs(collection(db, "scouting"));
+            listaScoutingDatos = [];
+            scoutingLayerGroup.clearLayers();
+            querySnapshot.forEach((docSnap) => {
+                let data = docSnap.data();
+                data.firebaseId = docSnap.id;
+                listaScoutingDatos.push(data);
+                dibujarPuntoScoutingMapa(data);
+            });
+            actualizarTablaScouting();
+        } catch(e) { console.error("Error scouting", e); }
     }
 
-    mapaScouting.on('click', function(e) {
+    mapaScouting.on('click', async function(e) {
         let lat = e.latlng.lat;
         let lon = e.latlng.lng;
         let plaga = document.getElementById('plagaInput').value.trim() || "Incidencia General";
@@ -491,11 +495,13 @@
         let fecha = new Date().toLocaleString();
 
         let punto = { id: "PT-" + (listaScoutingDatos.length + 1), plaga, severidad, lat: lat.toFixed(5), lon: lon.toFixed(5), fecha };
-        listaScoutingDatos.push(punto);
-        localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
-
-        dibujarPuntoScoutingMapa(punto);
-        actualizarTablaScouting();
+        try {
+            let docRef = await addDoc(collection(db, "scouting"), punto);
+            punto.firebaseId = docRef.id;
+            listaScoutingDatos.push(punto);
+            dibujarPuntoScoutingMapa(punto);
+            actualizarTablaScouting();
+        } catch(err) { alert("❌ Error guardando punto en la nube."); }
     });
 
     function dibujarPuntoScoutingMapa(p) {
@@ -517,53 +523,37 @@
             fila.insertCell(3).innerText = `${p.lat}, ${p.lon}`;
             fila.insertCell(4).innerText = p.fecha;
             let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = 'Eliminar';
-            btn.onclick = () => {
-                listaScoutingDatos.splice(index, 1);
-                localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
-                scoutingLayerGroup.clearLayers();
-                listaScoutingDatos.forEach(item => dibujarPuntoScoutingMapa(item));
-                actualizarTablaScouting();
+            btn.onclick = async () => {
+                if (p.firebaseId) {
+                    try { await deleteDoc(doc(db, "scouting", p.firebaseId)); } catch(e) {}
+                }
+                cargarScoutingCloud();
             };
             fila.insertCell(5).appendChild(btn);
         });
     }
 
-    function limpiarScoutingSeguro() {
+    window.limpiarScoutingSeguro = async function() {
         let pin = prompt("🔒 PIN de Administrador (2026):");
         if (pin === PIN_ADMIN) {
-            localStorage.removeItem(STORAGE_KEY_SCOUTING);
-            listaScoutingDatos = [];
-            scoutingLayerGroup.clearLayers();
-            actualizarTablaScouting();
+            try {
+                let querySnapshot = await getDocs(collection(db, "scouting"));
+                for (let d of querySnapshot.docs) {
+                    await deleteDoc(doc(db, "scouting", d.id));
+                }
+                cargarScoutingCloud();
+            } catch(e) {}
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
-    function descargarRespaldoScoutingJSON() {
-        if (listaScoutingDatos.length === 0) { alert("⚠️ No hay puntos de scouting para respaldar."); return; }
+    window.descargarRespaldoScoutingJSON = function() {
+        if (listaScoutingDatos.length === 0) { alert("⚠️ No hay puntos."); return; }
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaScoutingDatos));
         let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_respaldo_scouting.json");
         document.body.appendChild(dl); dl.click(); dl.remove();
     }
 
-    function importarRespaldoScoutingJSON(event) {
-        let file = event.target.files[0];
-        if (!file) return;
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    listaScoutingDatos = imported;
-                    localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
-                    cargarScoutingGuardados();
-                    alert("✅ Respaldo de scouting cargado con éxito.");
-                } else { alert("❌ Formato de archivo inválido."); }
-            } catch(err) { alert("❌ Error al leer el JSON."); }
-        };
-        reader.readAsText(file);
-    }
-
-    function exportarTablaScoutingCSV() {
+    window.exportarTablaScoutingCSV = function() {
         if (listaScoutingDatos.length === 0) { alert("⚠️ No hay puntos de scouting."); return; }
         let csv = "ID,Plaga,Severidad,Latitud,Longitud,Fecha\n" + listaScoutingDatos.map(p => `${p.id},"${p.plaga}",${p.severidad},${p.lat},${p.lon},"${p.fecha}"`).join("\n");
         let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -584,7 +574,7 @@
     }
 
     // --- 4. HIDRÁULICA Y RIEGO ---
-    function calcularHidraulicaCompleta() {
+    window.calcularHidraulicaCompleta = function() {
         let idx = document.getElementById('selectLoteRiego').value;
         let et0 = parseFloat(document.getElementById('et0Input').value);
         let kc = parseFloat(document.getElementById('kcInput').value);
@@ -606,7 +596,7 @@
     }
 
     // --- 5. DENSIDAD Y YIELD ---
-    function calcularYieldCompleto() {
+    window.calcularYieldCompleto = function() {
         let idx = document.getElementById('selectLotePlantacion').value;
         let dSurco = parseFloat(document.getElementById('distSurcos').value);
         let dPlanta = parseFloat(document.getElementById('distPlantas').value);
@@ -625,8 +615,9 @@
                         `• Rendimiento Unitario: <strong>${(tmTotal / lote.ha).toFixed(2)} TM / ha</strong>`;
     }
 
-    cargarLotesGuardados();
-    cargarScoutingGuardados();
+    // Inicializar carga cloud
+    cargarLotesCloud();
+    cargarScoutingCloud();
 </script>
 
 </body>
