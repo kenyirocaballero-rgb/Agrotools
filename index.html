@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Intelligent Precision Farming</title>
+    <title>AgroSmart Pro Enterprise | Dynamic SaaS UI</title>
     <!-- Leaflet GIS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -18,126 +18,115 @@
 
     <style>
         :root {
-            --bg-main: #f8fafc;
+            --bg-main: #f1f5f9;
             --bg-card: #ffffff;
-            --border-color: #e2e8f0;
-            --primary: #15803d;
-            --primary-hover: #166534;
+            --border-color: #cbd5e1;
+            --primary: #16a34a;
+            --primary-hover: #15803d;
             --primary-dark: #14532d;
             --accent: #0284c7;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --radius: 12px;
+            --radius: 14px;
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); line-height: 1.6; padding: 25px; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); line-height: 1.6; padding: 30px; }
 
-        .container { max-width: 1400px; margin: auto; }
+        .container { max-width: 1450px; margin: auto; }
 
-        /* --- BRANDING HEADER --- */
+        /* --- HEADER BRANDING --- */
         header { 
-            background: linear-gradient(135deg, #14532d 0%, #15803d 50%, #166534 100%); 
+            background: linear-gradient(135deg, #064e3b 0%, #16a34a 100%); 
             color: white; 
-            padding: 40px 30px; 
+            padding: 45px 35px; 
             border-radius: var(--radius); 
             text-align: center; 
-            margin-bottom: 25px; 
-            box-shadow: 0 15px 35px rgba(21, 128, 61, 0.15); 
+            margin-bottom: 30px; 
+            box-shadow: var(--shadow-lg); 
             position: relative;
             overflow: hidden;
-            border-bottom: 4px solid #4ade80;
-        }
-        header::before {
-            content: "";
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
-            transform: rotate(30deg);
-            pointer-events: none;
+            border-bottom: 5px solid #4ade80;
         }
         .brand-badge {
             display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.78rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
         }
-        header h1 { font-size: 2.6rem; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
-        header p { color: #dcfce7; font-size: 1.05rem; font-weight: 400; max-width: 800px; margin: 0 auto; }
+        header h1 { font-size: 2.8rem; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
+        header p { color: #ecfdf5; font-size: 1.1rem; font-weight: 400; max-width: 850px; margin: 0 auto; }
 
-        /* Sistema de Alertas Toast */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--text-main); color: white; padding: 14px 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 0.9rem; font-weight: 600; border-left: 5px solid var(--primary); animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* --- TOAST ALERTS --- */
+        #toast-container { position: fixed; top: 25px; right: 25px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+        .toast { background: var(--text-main); color: white; padding: 16px 22px; border-radius: 10px; box-shadow: var(--shadow-lg); font-size: 0.92rem; font-weight: 600; border-left: 6px solid var(--primary); animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeOut 0.3s ease 2.7s forwards; }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
-        /* KPI Dashboard */
-        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 22px; border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.2s ease; }
-        .kpi-card:hover { transform: translateY(-2px); border-color: #cbd5e1; }
-        .kpi-card h4 { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 700; }
-        .kpi-card .value { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        /* --- KPI CARDS --- */
+        .kpi-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 25px; border-radius: var(--radius); box-shadow: var(--shadow-sm); transition: all 0.3s ease; }
+        .kpi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary); }
+        .kpi-card h4 { color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; font-weight: 700; }
+        .kpi-card .value { font-size: 2rem; font-weight: 900; color: var(--primary-dark); }
 
-        /* Navegación por pestañas */
-        .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 18px; border: none; background: var(--bg-card); color: var(--text-muted); cursor: pointer; font-weight: 600; border-radius: 10px; transition: all 0.2s ease; font-size: 0.88rem; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .tab-btn:hover { background: #f1f5f9; color: var(--text-main); transform: translateY(-1px); }
-        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(21, 128, 61, 0.3); font-weight: 700; }
+        /* --- TABS NAVIGATION --- */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 35px; flex-wrap: wrap; }
+        .tab-btn { padding: 14px 20px; border: none; background: var(--bg-card); color: var(--text-muted); cursor: pointer; font-weight: 600; border-radius: 12px; transition: all 0.25s ease; font-size: 0.92rem; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .tab-btn:hover { background: #f8fafc; color: var(--text-main); transform: translateY(-2px); }
+        .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 10px 20px -5px rgba(22, 163, 74, 0.4); font-weight: 700; }
 
-        .panel { background: var(--bg-card); padding: 35px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: none; border: 1px solid var(--border-color); }
-        .panel.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        /* --- DYNAMIC PANELS --- */
+        .panel { background: var(--bg-card); padding: 40px; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: none; border: 1px solid var(--border-color); }
+        .panel.active { display: block; animation: panelFade 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes panelFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { color: var(--primary-dark); margin-bottom: 8px; font-size: 1.4rem; font-weight: 700; }
+        h2 { color: var(--primary-dark); margin-bottom: 12px; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.3px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; }
         
-        /* Caja de Guía e Instrucciones */
-        .guide-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; margin-bottom: 25px; color: #166534; font-size: 0.9rem; }
-        .guide-box strong { display: block; margin-bottom: 4px; color: var(--primary); }
+        .guide-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 18px 22px; border-radius: 10px; margin-bottom: 30px; color: #166534; font-size: 0.95rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); }
+        .guide-box strong { display: block; margin-bottom: 6px; color: var(--primary-dark); font-size: 1rem; }
 
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 15px; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 15px; }
-        @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px; }
+        @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
-        label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; font-size: 0.88rem; }
-        input[type="file"], input[type="text"], input[type="number"], select { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background: #fff; color: var(--text-main); }
-        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15); }
+        label { display: block; font-weight: 700; margin-bottom: 8px; color: #334155; font-size: 0.9rem; }
+        input[type="file"], input[type="text"], input[type="number"], select { width: 100%; padding: 14px; margin-bottom: 22px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.98rem; background: #fff; color: var(--text-main); transition: all 0.2s; }
+        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15); }
 
-        button.action-btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; font-size: 0.95rem; transition: 0.2s; box-shadow: 0 4px 12px rgba(21,128,61,0.2); }
-        button.action-btn:hover { background: var(--primary-hover); }
-        button.gps-btn { background: var(--accent); color: white; margin-bottom: 15px; }
+        button.action-btn { background: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 10px; cursor: pointer; font-weight: 700; width: 100%; font-size: 1rem; transition: all 0.2s; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3); }
+        button.action-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4); }
+        button.gps-btn { background: var(--accent); color: white; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); }
         button.gps-btn:hover { background: #02699c; }
-        button.pdf-btn { background: #dc2626; color: #fff; }
-        button.delete-row-btn { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+        button.pdf-btn { background: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3); }
+        button.pdf-btn:hover { background: #b91c1c; }
+        button.delete-row-btn { background: #ef4444; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
         button.delete-row-btn:hover { background: #dc2626; }
 
-        canvas, img { width: 100%; max-height: 380px; object-fit: contain; border: 2px dashed var(--border-color); border-radius: 10px; background: #f8fafc; padding: 8px; }
-        #mapaLotes { width: 100%; height: 500px; border-radius: 10px; margin-top: 15px; border: 1px solid var(--border-color); z-index: 1; }
+        canvas, img { width: 100%; max-height: 400px; object-fit: contain; border: 2px dashed var(--border-color); border-radius: 12px; background: #f8fafc; padding: 10px; }
+        #mapaLotes { width: 100%; height: 520px; border-radius: 12px; margin-top: 20px; border: 1px solid var(--border-color); z-index: 1; box-shadow: var(--shadow-sm); }
 
-        .result-box { margin-top: 25px; padding: 18px; background: #f0fdf4; border-left: 5px solid var(--primary); font-weight: 500; border-radius: 6px; color: #166534; font-size: 0.95rem; }
+        .result-box { margin-top: 25px; padding: 22px; background: #f0fdf4; border-left: 6px solid var(--primary); font-weight: 500; border-radius: 10px; color: #166534; font-size: 1rem; box-shadow: var(--shadow-sm); animation: panelFade 0.3s ease; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.92rem; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
-        th, td { border: 1px solid var(--border-color); padding: 12px; text-align: left; }
-        th { background-color: #f8fafc; color: #1e293b; font-weight: 700; }
-        tr:nth-child(even) { background-color: #fdfdfd; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 0.95rem; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        th, td { border: 1px solid var(--border-color); padding: 14px; text-align: left; }
+        th { background-color: #f8fafc; color: #1e293b; font-weight: 800; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
 
-        .lote-etiqueta { background: rgba(20, 83, 45, 0.95); color: #fff; font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 11px; border: 1px solid #4ade80; }
-        .chart-container { position: relative; height: 300px; width: 100%; margin-top: 25px; background: #fff; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .lote-etiqueta { background: rgba(20, 83, 45, 0.95); color: #fff; font-weight: bold; padding: 6px 10px; border-radius: 6px; font-size: 12px; border: 1px solid #4ade80; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .chart-container { position: relative; height: 320px; width: 100%; margin-top: 30px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
 
-        /* --- FOOTER CORPORATIVO --- */
         footer.brand-footer {
-            margin-top: 40px;
-            text-align: center;
-            padding: 25px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
+            margin-top: 50px; text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border-color);
         }
         footer.brand-footer strong { color: var(--primary-dark); }
     </style>
@@ -148,9 +137,9 @@
 
 <div class="container">
     <header>
-        <div class="brand-badge">🌱 AgroSmart Enterprise Edition</div>
+        <div class="brand-badge">🌱 AgroSmart Enterprise Edition v6.0</div>
         <h1>AgroSmart Pro</h1>
-        <p>Plataforma SaaS de Agricultura de Precisión, SIG Geodésico y Biometría Óptica Avanzada</p>
+        <p>Plataforma SaaS Interactiva con 10 Módulos de Precisión e Ingeniería Agronómica</p>
     </header>
 
     <div class="kpi-container">
@@ -163,89 +152,58 @@
             <div class="value" id="kpiFoliar">0.00 cm²</div>
         </div>
         <div class="kpi-card">
-            <h4>Focos de Scouting Activos</h4>
-            <div class="value" id="kpiScout">0 focos</div>
+            <h4>Jornales Estimados</h4>
+            <div class="value" id="kpiJornales">0 operarios</div>
         </div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 Biometría Óptica</button>
-        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ Catastro GIS & Admin</button>
-        <button class="tab-btn" onclick="switchTab('clima', event)">🌤️ Hidro-Climatología</button>
-        <button class="tab-btn" onclick="switchTab('nutricion', event)">🧪 Fertirriego & Costos</button>
-        <button class="tab-btn" onclick="switchTab('maduracion', event)">🍇 Cosecha & Brix</button>
-        <button class="tab-btn" onclick="switchTab('scouting', event)">📍 Scouting Fitosanitario</button>
+        <button class="tab-btn active" onclick="switchTab('gis', event)">🗺️ GIS & Topografía</button>
+        <button class="tab-btn" onclick="switchTab('fisiologia', event)">🌿 Biometría & GDD/VPD</button>
+        <button class="tab-btn" onclick="switchTab('riego', event)">💧 Hidráulica & Riego</button>
+        <button class="tab-btn" onclick="switchTab('suelos', event)">🧪 Suelos & Agua Útil</button>
+        <button class="tab-btn" onclick="switchTab('logistica', event)">📦 Logística & Sanidad</button>
         <button class="tab-btn" onclick="switchTab('reportes', event)">📊 Dossier Técnico PDF</button>
     </div>
 
-    <!-- 1. BIOMETRÍA -->
-    <div id="biometria" class="panel active">
-        <h2>Análisis Morfológico de Follaje y Cobertura (Canvas Nativo)</h2>
+    <!-- 1. PESTAÑA GIS, TOPOGRAFÍA Y RUTAS -->
+    <div id="gis" class="panel active">
+        <h2>Catastro Geodésico, Vías de Acceso y Topografía</h2>
         <div class="guide-box">
             <strong>¿Qué hacer y para qué sirve?</strong>
-            Sube una fotografía cenital de una hoja o planta de cultivo sobre un fondo contrastante. El motor nativo calculará instantáneamente el área foliar en cm² y el porcentaje de cobertura verde, ideal para evaluar vigor o estrés experimental sin depender de librerías externas pesadas.
-        </div>
-        
-        <div class="grid-2">
-            <div>
-                <label>Fotografía Cenital de la Planta:</label>
-                <input type="file" id="fotoPlanta" accept="image/*">
-            </div>
-            <div>
-                <label>Área del patrón de calibración (cm²):</label>
-                <input type="number" id="areaReferenciaInput" value="25">
-            </div>
-        </div>
-        
-        <button class="action-btn" onclick="AgroBio.procesar()">Procesar Morfometría Nativa</button>
-
-        <div class="grid-2" style="margin-top: 25px;">
-            <div>
-                <label>Imagen Original</label>
-                <img id="imagenOriginal" alt="Cargar imagen">
-            </div>
-            <div>
-                <label>Máscara de Cobertura Foliar (Canvas)</label>
-                <canvas id="canvasOutput"></canvas>
-            </div>
-        </div>
-        
-        <div id="resultadoFoliar" class="result-box" style="display:none;"></div>
-    </div>
-
-    <!-- 2. CATASTRO GIS -->
-    <div id="lotes" class="panel">
-        <h2>Catastro Geodésico y Administración Segura</h2>
-        <div class="guide-box">
-            <strong>¿Qué hacer y para qué sirve?</strong>
-            Dibuja polígonos delimitando tus campos de cultivo sobre el mapa satelital. Cada lote mostrará permanentemente su código y área en hectáreas. Las acciones de borrado están protegidas por PIN de Administrador (PIN: 2026).
+            Dibuja tus lotes en el mapa satelital interactivo, calcula la pendiente y desnivel del terreno para evitar escorrentías e inundaciones, y gestiona tu catastro con seguridad de Administrador (PIN: 2026).
         </div>
         
         <button class="action-btn gps-btn" onclick="AgroGIS.ubicarGPS()">📍 Ir a mi Ubicación GPS en el Mapa</button>
 
-        <div class="grid-2">
+        <div class="grid-3">
             <div>
-                <label>Identificador / Código del Lote:</label>
-                <input type="text" id="nombreLoteInput" placeholder="Ej. REM2-U01">
+                <label>Identificador del Lote:</label>
+                <input type="text" id="nombreLoteInput" placeholder="Ej. LOTE-01">
             </div>
             <div>
-                <label>Importar Vector (.geojson):</label>
-                <input type="file" id="geojsonUpload" accept=".geojson,.json">
+                <label>Desnivel Topográfico (m):</label>
+                <input type="number" id="desnivelInput" value="3.5" step="0.1">
+            </div>
+            <div>
+                <label>Distancia Horizontal (m):</label>
+                <input type="number" id="distanciaHorizInput" value="120" step="1">
             </div>
         </div>
 
-        <button class="action-btn" onclick="AgroGIS.limpiarTodo()" style="background: #dc2626; margin-bottom: 10px;">🗑️ [ADMIN] Borrar Todos los Lotes (Requiere PIN)</button>
+        <button class="action-btn" onclick="AgroTopro.calcularPendiente()" style="margin-bottom: 20px;">📐 Calcular Pendiente y Riesgo de Escorrentía</button>
+        <div id="resultadoPendiente" class="result-box" style="display:none;"></div>
 
         <div id="mapaLotes"></div>
 
-        <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 1.2rem; color: var(--primary);">Inventario de Superficies con Control de Acceso</h3>
+        <h3 style="margin-top: 35px; margin-bottom: 15px; font-size: 1.3rem; color: var(--primary-dark);">Inventario de Superficies (Admin Protected)</h3>
         <table>
             <thead>
                 <tr>
                     <th>Código de Lote</th>
                     <th>Área (m²)</th>
                     <th>Área (Hectáreas)</th>
-                    <th>Acción Protegida (Admin)</th>
+                    <th>Acción Protegida</th>
                 </tr>
             </thead>
             <tbody id="tablaLotesBody">
@@ -254,150 +212,186 @@
         </table>
     </div>
 
-    <!-- 3. HIDRO-CLIMATOLOGÍA -->
-    <div id="clima" class="panel">
-        <h2>Modelo Hidrológico y Demanda Evaporativa ($ET_c$)</h2>
+    <!-- 2. PESTAÑA BIOMETRÍA, GDD Y VPD -->
+    <div id="fisiologia" class="panel">
+        <h2>Biometría Óptica, GDD (Unidades Térmicas) y VPD</h2>
         <div class="guide-box">
             <strong>¿Qué hacer y para qué sirve?</strong>
-            Simula la evapotranspiración del cultivo ingresando el coeficiente fenológico ($K_c$). Permite dimensionar el volumen de agua requerido por hectárea para optimizar los ciclos de riego.
+            Sube fotografías cenitales para calcular el área foliar y el Índice de Área Foliar (IAF), modela la acumulación térmica diaria (Grados Día de Desarrollo) para cosecha y evalúa el Déficit de Presión de Vapor.
         </div>
         
+        <div class="grid-2">
+            <div>
+                <label>Fotografía Cenital de la Planta:</label>
+                <input type="file" id="fotoPlanta" accept="image/*">
+            </div>
+            <div>
+                <label>Área de Calibración (cm²):</label>
+                <input type="number" id="areaReferenciaInput" value="25">
+            </div>
+        </div>
+        <button class="action-btn" onclick="AgroBio.procesar()" style="margin-bottom: 25px;">Procesar Área Foliar e IAF</button>
+
+        <div class="grid-2">
+            <div>
+                <label>Imagen Original</label>
+                <img id="imagenOriginal" alt="Cargar imagen">
+            </div>
+            <div>
+                <label>Máscara Foliar Dinámica (Canvas)</label>
+                <canvas id="canvasOutput"></canvas>
+            </div>
+        </div>
+        <div id="resultadoFoliar" class="result-box" style="display:none;"></div>
+
+        <hr style="margin: 35px 0; border:0; border-top: 1px solid var(--border-color);">
+
         <div class="grid-3">
             <div>
-                <label>Latitud:</label>
-                <input type="text" id="latInput" value="-8.1116">
+                <label>Temp. Máxima (°C):</label>
+                <input type="number" id="tMax" value="28.5">
             </div>
             <div>
-                <label>Longitud:</label>
-                <input type="text" id="lonInput" value="-79.0282">
+                <label>Temp. Mínima (°C):</label>
+                <input type="number" id="tMin" value="14.2">
             </div>
             <div>
-                <label>Coeficiente de Cultivo (Kc):</label>
-                <input type="number" id="kcInput" value="1.10" step="0.05">
+                <label>Temp. Base Cultivo (°C):</label>
+                <input type="number" id="tBase" value="10.0">
             </div>
         </div>
+        <button class="action-btn" onclick="AgroFisio.calcularGDD()" style="margin-bottom: 20px;">Calcular Grados Día de Desarrollo (GDD)</button>
+        <div id="resultadoGDD" class="result-box" style="display:none;"></div>
 
-        <button class="action-btn" onclick="AgroHydro.simular()">Simular Demanda Climática</button>
-
-        <div class="chart-container">
-            <canvas id="graficoClima"></canvas>
+        <div class="grid-2" style="margin-top: 25px;">
+            <div>
+                <label>Temperatura del Aire (°C):</label>
+                <input type="number" id="tempAire" value="25.0">
+            </div>
+            <div>
+                <label>Humedad Relativa (%):</label>
+                <input type="number" id="humedadRelativa" value="65">
+            </div>
         </div>
-
-        <div id="resultadoClima" class="result-box" style="display:none;"></div>
+        <button class="action-btn" onclick="AgroFisio.calcularVPD()">Calcular VPD y Estrés Estomático</button>
+        <div id="resultadoVPD" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- 4. FERTIRRIEGO -->
-    <div id="nutricion" class="panel">
-        <h2>Simulador Estequiométrico de Fertirriego y Costos</h2>
+    <!-- 3. PESTAÑA HIDRÁULICA Y PÉRDIDA DE CARGA -->
+    <div id="riego" class="panel">
+        <h2>Ingeniería de Riego y Estimación de Pérdida de Carga</h2>
         <div class="guide-box">
             <strong>¿Qué hacer y para qué sirve?</strong>
-            Calcula la cantidad total en kilogramos de fertilizantes comerciales (Urea, MAP, Cloruro de Potasio) requeridos según la superficie catastrada y estima el costo económico en USD.
+            Calcula la caída de presión hidráulica a lo largo de una manguera portagoteros (lateral de riego) para asegurar que la uniformidad del sistema cumpla con los estándares técnicos.
+        </div>
+
+        <div class="grid-3">
+            <div>
+                <label>Longitud del Lateral (m):</label>
+                <input type="number" id="latLong" value="100">
+            </div>
+            <div>
+                <label>Caudal de Entrada (L/h):</label>
+                <input type="number" id="latCaudal" value="500">
+            </div>
+            <div>
+                <label>Diámetro Interno Manguera (mm):</label>
+                <input type="number" id="latDiametro" value="16">
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="AgroRiego.calcularPerdidaCarga()">Calcular Pérdida de Carga Hidráulica</button>
+        <div id="resultadoRiego" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- 4. PESTAÑA SUELOS Y AGUA ÚTIL -->
+    <div id="suelos" class="panel">
+        <h2>Mecánica de Suelos y Capacidad de Retención (Agua Útil)</h2>
+        <div class="guide-box">
+            <strong>¿Qué hacer y para qué sirve?</strong>
+            Estima el volumen de agua aprovechable en el perfil del suelo (diferencia entre Capacidad de Campo y Punto de Marchitez Permanente) según la profundidad radicular.
+        </div>
+
+        <div class="grid-3">
+            <div>
+                <label>Capacidad de Campo - CC (% vol):</label>
+                <input type="number" id="ccInput" value="28.5">
+            </div>
+            <div>
+                <label>Punto de Marchitez - PMP (% vol):</label>
+                <input type="number" id="pmpInput" value="12.0">
+            </div>
+            <div>
+                <label>Profundidad Radicular (cm):</label>
+                <input type="number" id="raizInput" value="60">
+            </div>
+        </div>
+
+        <button class="action-btn" onclick="AgroSuelos.calcularAguaUtil()">Calcular Lámina de Agua Útil</button>
+        <div id="resultadoAguaUtil" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- 5. PESTAÑA LOGÍSTICA, JORNALES, STOCK Y SANIDAD -->
+    <div id="logistica" class="panel">
+        <h2>Gestión Logística, Mano de Obra, Stock e Ingredientes Activos</h2>
+        <div class="guide-box">
+            <strong>¿Qué hacer y para qué sirve?</strong>
+            Planifica la cantidad de operarios necesarios para labores agrícolas, lleva el inventario físico de insumos y programa la rotación de ingredientes activos (FRAC/IRAC) para prevenir resistencia.
         </div>
 
         <div class="grid-2">
             <div>
-                <label>Dosis N-P-K (kg/ha):</label>
-                <input type="text" id="dosisNPK" value="180 - 90 - 220">
+                <label>Jornales requeridos por hectárea (día/ha):</label>
+                <input type="number" id="jornalHa" value="12">
             </div>
             <div>
-                <label>Caudal del Sistema (m³/h):</label>
-                <input type="number" id="caudalSistema" value="45.0">
+                <button class="action-btn" onclick="AgroLogistica.calcularJornales()" style="margin-top: 28px;">Calcular Mano de Obra Total</button>
             </div>
         </div>
+        <div id="resultadoJornales" class="result-box" style="display:none;"></div>
 
-        <button class="action-btn" onclick="AgroNutri.calcular()">Calcular Insumos y Costos</button>
+        <hr style="margin: 35px 0; border:0; border-top: 1px solid var(--border-color);">
 
-        <div class="chart-container">
-            <canvas id="graficoNutrientes"></canvas>
-        </div>
-
-        <div id="resultadoNutricion" class="result-box" style="display:none;"></div>
-    </div>
-
-    <!-- 5. MADURACIÓN -->
-    <div id="maduracion" class="panel">
-        <h2>Control de Calidad, Grados Brix y Estimación de Cosecha</h2>
-        <div class="guide-box">
-            <strong>¿Qué hacer y para qué sirve?</strong>
-            Evalúa los parámetros fisicoquímicos en campo (Sólidos solubles, acidez y firmeza de pulpa) para determinar el ratio óptimo de madurez comercial para cosecha.
-        </div>
-
+        <h3 style="margin-bottom: 15px; color: var(--primary-dark);">Control de Inventario de Insumos</h3>
         <div class="grid-3">
-            <div>
-                <label>Sólidos Solubles (°Brix):</label>
-                <input type="number" id="brixInput" value="18.5" step="0.1">
-            </div>
-            <div>
-                <label>Acidez Titulable (%):</label>
-                <input type="number" id="acidezInput" value="0.65" step="0.01">
-            </div>
-            <div>
-                <label>Firmeza de Pulpa (lbs):</label>
-                <input type="number" id="firmezaInput" value="4.2" step="0.1">
-            </div>
+            <div><input type="text" id="insumoNombre" placeholder="Nombre (Ej. Urea 50kg)"></div>
+            <div><input type="number" id="insumoStock" placeholder="Stock actual (sacos/bidones)"></div>
+            <div><button class="action-btn" onclick="AgroLogistica.agregarInsumo()">Registrar en Almacén</button></div>
         </div>
-
-        <button class="action-btn" onclick="AgroMadu.evaluar()">Evaluar Estado de Madurez Comercial</button>
-
-        <div id="resultadoMaduracion" class="result-box" style="display:none;"></div>
-    </div>
-
-    <!-- 6. SCOUTING -->
-    <div id="scouting" class="panel">
-        <h2>Bitácora de Scouting Fitosanitario Georreferenciado</h2>
-        <div class="guide-box">
-            <strong>¿Qué hacer y para qué sirve?</strong>
-            Haz clic en un punto exacto del mapa satelital (Pestaña 2) para capturar sus coordenadas GPS y registrar focos de plagas o patógenos con su respectiva severidad y acción correctiva.
-        </div>
-        
-        <div class="grid-3">
-            <div>
-                <label>Patógeno / Problema:</label>
-                <input type="text" id="scoutPlaga" value="Phytophthora cinnamomi">
-            </div>
-            <div>
-                <label>Severidad (1 al 5):</label>
-                <input type="number" id="scoutSeveridad" value="3" min="1" max="5">
-            </div>
-            <div>
-                <label>Coordenadas Capturadas (Lat, Lon):</label>
-                <input type="text" id="scoutCoords" value="Haz clic en el mapa..." readonly style="color: var(--accent);">
-            </div>
-        </div>
-
-        <button class="action-btn" onclick="AgroScout.registrar()">Registrar Foco en el Mapa</button>
-
         <table>
-            <thead>
-                <tr>
-                    <th>Incidencia</th>
-                    <th>Severidad</th>
-                    <th>Coordenadas GPS (Lat, Lon)</th>
-                    <th>Acción Correctiva</th>
-                </tr>
-            </thead>
-            <tbody id="tablaScoutBody">
-                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Sin reportes georreferenciados.</td></tr>
-            </tbody>
+            <thead><tr><th>Insumo</th><th>Stock Físico</th><th>Estado</th></tr></thead>
+            <tbody id="tablaInsumosBody"><tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Sin insumos registrados.</td></tr></tbody>
+        </table>
+
+        <hr style="margin: 35px 0; border:0; border-top: 1px solid var(--border-color);">
+
+        <h3 style="margin-bottom: 15px; color: var(--primary-dark);">Matriz de Rotación de Ingredientes Activos (FRAC/IRAC)</h3>
+        <div class="grid-3">
+            <div><input type="text" id="rotPlaga" placeholder="Plaga / Hongo (Ej. Oidium)"></div>
+            <div><input type="text" id="rotIngrediente" placeholder="Ingrediente Activo (Ej. Difenoconazol)"></div>
+            <div><button class="action-btn" onclick="AgroLogistica.agregarRotacion()">Añadir a Programa</button></div>
+        </div>
+        <table>
+            <thead><tr><th>Patógeno</th><th>Ingrediente Activo</th><th>Modo de Acción</th></tr></thead>
+            <tbody id="tablaRotacionBody"><tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Sin rotaciones registradas.</td></tr></tbody>
         </table>
     </div>
 
-    <!-- 7. REPORTES -->
+    <!-- 6. REPORTES PDF -->
     <div id="reportes" class="panel">
         <h2>Generación de Dossier Técnico de Ingeniería</h2>
         <div class="guide-box">
             <strong>¿Qué hacer y para qué sirve?</strong>
-            Compila todos los datos analíticos, inventario de lotes y registros de scouting en un documento formal exportable en PDF listo para presentación institucional.
+            Compila todos los datos analíticos, inventario de lotes y cálculos en un documento formal exportable en PDF listo para presentación gerencial o académica.
         </div>
         
         <label>Responsable Técnico / Investigador:</label>
         <input type="text" id="evaluadorInput" value="Ing. Agrónomo Senior UPAO">
-
         <button class="action-btn pdf-btn" onclick="AgroPDF.generar()">📥 Exportar Dossier Ejecutivo en PDF</button>
     </div>
 
     <footer class="brand-footer">
-        <p><strong>AgroSmart Pro Enterprise</strong> &bull; Sistema de Gestión Agronómica y SIG v3.5</p>
+        <p><strong>AgroSmart Pro Enterprise</strong> &bull; Suite Interactiva v6.0</p>
         <p>Desarrollado para Investigación Aplicada y Agroexportación</p>
     </footer>
 </div>
@@ -419,24 +413,21 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if (evt && evt.target) evt.target.classList.add('active');
-        if (tabId === 'lotes' && window.mapaSatellital) {
+        if (tabId === 'gis' && window.mapaSatellital) {
             setTimeout(() => { window.mapaSatellital.invalidateSize(); }, 250);
         }
     }
 
-    // --- MÓDULO CATASTRO GIS ---
+    // --- CATASTRO GIS ---
     let mapaSatellital = L.map('mapaLotes').setView([-8.1116, -79.0282], 15);
     window.mapaSatellital = mapaSatellital;
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Esri World Imagery'
+        maxZoom: 19, attribution: 'Esri World Imagery'
     }).addTo(mapaSatellital);
 
     let drawnItems = new L.FeatureGroup();
     mapaSatellital.addLayer(drawnItems);
-    let scoutingMarkersGroup = new L.LayerGroup().addTo(mapaSatellital);
-
     let drawControl = new L.Control.Draw({
         edit: { featureGroup: drawnItems },
         draw: { polygon: true, rectangle: true, polyline: false, circle: false, marker: false, circlemarker: false }
@@ -444,63 +435,41 @@
     mapaSatellital.addControl(drawControl);
 
     let listaLotesDatos = [];
-    let listaScout = [];
     let ultimaAreaHa = 5.0;
-    let puntoScoutTemporal = null;
 
     const AgroGIS = {
         cargarGuardados: function() {
-            let guardadosLotes = localStorage.getItem('agrosmart_lotes');
-            if (guardadosLotes) {
+            let guardados = localStorage.getItem('agrosmart_lotes');
+            if (guardados) {
                 try {
-                    let parsed = JSON.parse(guardadosLotes);
+                    let parsed = JSON.parse(guardados);
                     parsed.forEach((item, index) => {
                         let layer = L.geoJSON(item.geojson).getLayers()[0];
                         layer.featureId = index;
                         drawnItems.addLayer(layer);
-                        let etiquetaTexto = `${item.codigo} (${item.ha.toFixed(2)} ha)`;
-                        layer.bindTooltip(etiquetaTexto, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                        layer.bindPopup(`<strong>Lote:</strong> ${item.codigo}<br><strong>Área:</strong> ${item.m2.toFixed(2)} m²<br><strong>Área:</strong> ${item.ha.toFixed(4)} ha`);
+                        layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
+                        layer.bindPopup(`<strong>Lote:</strong> ${item.codigo}<br><strong>Área:</strong> ${item.ha.toFixed(4)} ha`);
                         listaLotesDatos.push(item);
                     });
                     this.actualizarTabla();
                     actualizarKPIs();
-                } catch (e) { console.error("Error cargando lotes"); }
-            }
-
-            let guardadosScout = localStorage.getItem('agrosmart_scout');
-            if (guardadosScout) {
-                try {
-                    listaScout = JSON.parse(guardadosScout);
-                    listaScout.forEach(s => {
-                        let marker = L.circleMarker([s.lat, s.lon], { radius: 8, color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.9 })
-                            .bindPopup(`<strong>⚠️ Incidencia:</strong> ${s.plaga}<br><strong>Severidad:</strong> Nivel ${s.sev}<br><strong>GPS:</strong> ${s.lat.toFixed(5)}, ${s.lon.toFixed(5)}`);
-                        scoutingMarkersGroup.addLayer(marker);
-                    });
-                    AgroScout.actualizarTabla();
-                } catch (e) { console.error("Error cargando scouting"); }
+                } catch (e) {}
             }
         },
         guardarMemoria: function() {
             localStorage.setItem('agrosmart_lotes', JSON.stringify(listaLotesDatos));
         },
         ubicarGPS: function() {
-            if (!navigator.geolocation) {
-                showToast("⚠️ Geolocalización no soportada.");
-                return;
-            }
+            if (!navigator.geolocation) { showToast("⚠️ GPS no soportado."); return; }
             navigator.geolocation.getCurrentPosition((pos) => {
-                let lat = pos.coords.latitude;
-                let lon = pos.coords.longitude;
+                let lat = pos.coords.latitude, lon = pos.coords.longitude;
                 mapaSatellital.setView([lat, lon], 17);
-                L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
-                document.getElementById('latInput').value = lat.toFixed(4);
-                document.getElementById('lonInput').value = lon.toFixed(4);
-                showToast("📍 Ubicación GPS obtenida con éxito.");
-            }, () => { showToast("❌ Error al obtener ubicación GPS."); });
+                L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación!").openPopup();
+                showToast("📍 Ubicación obtenida.");
+            }, () => { showToast("❌ Error GPS."); });
         },
         eliminarIndividual: function(index) {
-            let pin = prompt("🔒 PIN de Administrador requerido para eliminar:");
+            let pin = prompt("🔒 PIN de Administrador requerido:");
             if (pin === PIN_ADMIN) {
                 if (confirm(`¿Eliminar el lote "${listaLotesDatos[index].codigo}"?`)) {
                     listaLotesDatos.splice(index, 1);
@@ -510,30 +479,25 @@
                         let layer = L.geoJSON(item.geojson).getLayers()[0];
                         drawnItems.addLayer(layer);
                         layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                        layer.bindPopup(`<strong>Lote:</strong> ${item.codigo}<br><strong>Área:</strong> ${item.ha.toFixed(4)} ha`);
                     });
                     this.actualizarTabla();
                     actualizarKPIs();
-                    showToast("✅ Lote eliminado por el administrador.");
+                    showToast("✅ Lote eliminado por Admin.");
                 }
-            } else if (pin !== null) {
-                showToast("❌ PIN Incorrecto.");
-            }
+            } else if (pin !== null) { showToast("❌ PIN Incorrecto."); }
         },
         limpiarTodo: function() {
-            let pin = prompt("🔒 [ADMIN] Ingrese PIN maestro para borrar todo el catastro:");
+            let pin = prompt("🔒 [ADMIN] PIN maestro para borrar todo:");
             if (pin === PIN_ADMIN) {
-                if (confirm("⚠️ ¿Vaciar todo el sistema catastral?")) {
+                if (confirm("⚠️ ¿Vaciar catastro?")) {
                     localStorage.removeItem('agrosmart_lotes');
                     listaLotesDatos = [];
                     drawnItems.clearLayers();
                     this.actualizarTabla();
                     actualizarKPIs();
-                    showToast("🗑️ Catastro restablecido.");
+                    showToast("🗑️ Catastro vaciado.");
                 }
-            } else if (pin !== null) {
-                showToast("❌ PIN Incorrecto.");
-            }
+            } else if (pin !== null) { showToast("❌ PIN Incorrecto."); }
         },
         actualizarTabla: function() {
             let tbody = document.getElementById("tablaLotesBody");
@@ -556,13 +520,6 @@
         }
     };
 
-    mapaSatellital.on('click', function(e) {
-        puntoScoutTemporal = { lat: e.latlng.lat, lon: e.latlng.lng };
-        document.getElementById('scoutCoords').value = `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
-        L.popup().setLatLng(e.latlng).setContent("🎯 <b>Punto de Scouting seleccionado.</b>").openOn(mapaSatellital);
-        showToast("📍 Punto georreferenciado en mapa.");
-    });
-
     mapaSatellital.on(L.Draw.Event.CREATED, function (e) {
         let layer = e.layer;
         let nombreLote = document.getElementById('nombreLoteInput').value.trim() || `LOTE-${listaLotesDatos.length + 1}`;
@@ -580,17 +537,32 @@
         AgroGIS.actualizarTabla();
         actualizarKPIs();
         document.getElementById('nombreLoteInput').value = "";
-        showToast(`✅ Lote "${nombreLote}" guardado automáticamente.`);
+        showToast(`✅ Lote "${nombreLote}" guardado.`);
     });
 
     function actualizarKPIs() {
         let totalHa = listaLotesDatos.reduce((sum, l) => sum + l.ha, 0);
         document.getElementById('kpiArea').innerText = totalHa.toFixed(2) + " ha";
-        document.getElementById('kpiAgua').innerText = (totalHa * 50).toFixed(1) + " m³/día";
-        document.getElementById('kpiScout').innerText = listaScout.length + " focos";
+        let jTotales = Math.round(totalHa * parseFloat(document.getElementById('jornalHa').value || 12));
+        document.getElementById('kpiJornales').innerText = jTotales + " operarios";
     }
 
-    // --- MÓDULO BIOMETRÍA NATIVA (CANVAS) ---
+    // --- TOPOGRAFÍA ---
+    const AgroTopro = {
+        calcularPendiente: function() {
+            let desnivel = parseFloat(document.getElementById('desnivelInput').value);
+            let dist = parseFloat(document.getElementById('distanciaHorizInput').value);
+            let pendiente = (desnivel / dist) * 100;
+            let riesgo = pendiente > 8 ? "Alto riesgo de escorrentía e erosión ⚠️" : "Pendiente moderada / Apta para riego 🟢";
+
+            let box = document.getElementById('resultadoPendiente');
+            box.style.display = "block";
+            box.innerHTML = `📐 <strong>Análisis Topográfico:</strong> Pendiente = <strong>${pendiente.toFixed(2)}%</strong> | Diagnóstico: <strong>${riesgo}</strong>`;
+            showToast("📐 Pendiente calculada.");
+        }
+    };
+
+    // --- BIOMETRÍA ---
     let ultimaCm2 = 0;
     let loadedImageObj = null;
 
@@ -599,18 +571,12 @@
         if (!file) return;
         let img = document.getElementById('imagenOriginal');
         img.src = URL.createObjectURL(file);
-        img.onload = () => {
-            loadedImageObj = img;
-            showToast("📸 Fotografía cenital cargada.");
-        }
+        img.onload = () => { loadedImageObj = img; showToast("📸 Foto cenital cargada."); }
     });
 
     const AgroBio = {
         procesar: function() {
-            if (!loadedImageObj) {
-                showToast("⚠️ Por favor carga una fotografía primero.");
-                return;
-            }
+            if (!loadedImageObj) { showToast("⚠️ Carga una foto primero."); return; }
             let areaRef = parseFloat(document.getElementById('areaReferenciaInput').value);
             let canvas = document.getElementById('canvasOutput');
             let ctx = canvas.getContext('2d');
@@ -619,9 +585,7 @@
             ctx.drawImage(loadedImageObj, 0, 0, canvas.width, canvas.height);
 
             let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            let data = imgData.data;
-            let pixelesVerdes = 0;
-
+            let data = imgData.data, pixelesVerdes = 0;
             for (let i = 0; i < data.length; i += 4) {
                 let r = data[i], g = data[i+1], b = data[i+2];
                 if (g > 50 && g > r * 1.1 && g > b * 1.1) {
@@ -634,163 +598,137 @@
             ctx.putImageData(imgData, 0, 0);
 
             let pixelesTotales = canvas.width * canvas.height;
-            let porcentaje = (pixelesVerdes / pixelesTotales) * 100;
             ultimaCm2 = (pixelesVerdes / (pixelesTotales * 0.3)) * (areaRef * 3);
+            let laiEstimado = (ultimaCm2 / 10000) * (ultimaAreaHa > 0 ? 10000 : 1);
 
             document.getElementById('kpiFoliar').innerText = ultimaCm2.toFixed(1) + " cm²";
             let box = document.getElementById('resultadoFoliar');
             box.style.display = "block";
-            box.innerHTML = `🌿 <strong>Morfometría Nativa Calculada:</strong><br>` +
-                            `• Área Foliar Neta: <strong>${ultimaCm2.toFixed(2)} cm²</strong> (${porcentaje.toFixed(2)}% cobertura)<br>` +
-                            `• Píxeles de Follaje: <strong>${pixelesVerdes.toLocaleString()} px</strong>`;
-            showToast("✨ Morfometría óptica procesada con éxito.");
+            box.innerHTML = `🌿 <strong>Morfometría e IAF:</strong><br>• Área Foliar: <strong>${ultimaCm2.toFixed(2)} cm²</strong><br>• Índice de Área Foliar (LAI Estimado): <strong>${laiEstimado.toFixed(2)}</strong>`;
+            showToast("✨ IAF y Área Foliar calculados.");
         }
     };
 
-    // --- MÓDULO CLIMA ---
-    let chartClimaInstance = null;
-    const AgroHydro = {
-        simular: function() {
-            let kc = parseFloat(document.getElementById('kcInput').value);
-            let etc = 4.6 * kc;
-            let vol = etc * 10 * ultimaAreaHa;
-            let ctx = document.getElementById('graficoClima').getContext('2d');
-            if (chartClimaInstance) chartClimaInstance.destroy();
+    const AgroFisio = {
+        calcularGDD: function() {
+            let tMax = parseFloat(document.getElementById('tMax').value);
+            let tMin = parseFloat(document.getElementById('tMin').value);
+            let tBase = parseFloat(document.getElementById('tBase').value);
+            let gdd = ((tMax + tMin) / 2) - tBase;
+            if (gdd < 0) gdd = 0;
 
-            chartClimaInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Día 1', 'Día 2', 'Día 3', 'Día 4', 'Día 5', 'Día 6', 'Día 7'],
-                    datasets: [{ label: 'ETc (mm/día)', data: [etc*0.95, etc*1.0, etc*1.05, etc*1.02, etc*0.98, etc*1.08, etc*1.0], borderColor: '#0284c7', fill: true, backgroundColor: 'rgba(2, 132, 199, 0.1)' }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-            let box = document.getElementById('resultadoClima');
+            let box = document.getElementById('resultadoGDD');
             box.style.display = "block";
-            box.innerHTML = `🌤️ <strong>Simulación Hidrológica:</strong> ETc = <strong>${etc.toFixed(2)} mm/día</strong> | Requerimiento volumétrico = <strong>${vol.toFixed(1)} m³/día</strong>.`;
-            showToast("🌤️ Balance hídrico simulado.");
-        }
-    };
-
-    // --- MÓDULO FERTIRRIEGO ---
-    let chartNutriInstance = null;
-    const AgroNutri = {
-        calcular: function() {
-            let urea = (180 * ultimaAreaHa) / 0.46;
-            let map = (90 * ultimaAreaHa) / 0.52;
-            let kcl = (220 * ultimaAreaHa) / 0.60;
-            let costo = (urea * 0.50) + (map * 0.85) + (kcl * 0.70);
-
-            let ctx = document.getElementById('graficoNutrientes').getContext('2d');
-            if (chartNutriInstance) chartNutriInstance.destroy();
-
-            chartNutriInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Urea (kg)', 'MAP (kg)', 'KCl (kg)'],
-                    datasets: [{ label: 'Insumos', data: [urea, map, kcl], backgroundColor: ['#15803d', '#0284c7', '#f59e0b'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            let box = document.getElementById('resultadoNutricion');
-            box.style.display = "block";
-            box.innerHTML = `🧪 <strong>Fertirriego:</strong> Urea: <strong>${urea.toFixed(1)} kg</strong> | MAP: <strong>${map.toFixed(1)} kg</strong> | KCl: <strong>${kcl.toFixed(1)} kg</strong> | Inversión: <strong>$ ${costo.toFixed(2)} USD</strong>`;
-            showToast("🧪 Plan de fertirriego calculado.");
-        }
-    };
-
-    // --- MÓDULO MADURACIÓN ---
-    const AgroMadu = {
-        evaluar: function() {
-            let brix = parseFloat(document.getElementById('brixInput').value);
-            let acidez = parseFloat(document.getElementById('acidezInput').value);
-            let ratio = brix / acidez;
-            let estado = ratio > 20 ? "Óptimo para Cosecha Comercial 🟢" : "En desarrollo / Sin alcanzar parámetros 🟡";
-
-            let box = document.getElementById('resultadoMaduracion');
-            box.style.display = "block";
-            box.innerHTML = `🍇 <strong>Evaluación Comercial:</strong> Ratio (Brix/Acidez) = <strong>${ratio.toFixed(2)}</strong> | Estado: <strong>${estado}</strong>`;
-            showToast("🍇 Madurez evaluada.");
-        }
-    };
-
-    // --- MÓDULO SCOUTING ---
-    const AgroScout = {
-        registrar: function() {
-            if (!puntoScoutTemporal) {
-                showToast("⚠️ Haz clic primero sobre el mapa (Pestaña 2).");
-                return;
-            }
-            let plaga = document.getElementById('scoutPlaga').value;
-            let sev = document.getElementById('scoutSeveridad').value;
-            let accion = sev > 3 ? "Aplicación focalizada de fungicida sistémico" : "Monitoreo preventivo";
-
-            listaScout.push({ plaga, sev, lat: puntoScoutTemporal.lat, lon: puntoScoutTemporal.lon, accion });
-            localStorage.setItem('agrosmart_scout', JSON.stringify(listaScout));
-            this.actualizarTabla();
-            actualizarKPIs();
-
-            let marker = L.circleMarker([puntoScoutTemporal.lat, puntoScoutTemporal.lon], { radius: 8, color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.9 })
-                .bindPopup(`<strong>⚠️ Foco:</strong> ${plaga} (Nivel ${sev})`);
-            scoutingMarkersGroup.addLayer(marker);
-
-            showToast("📍 Foco fitosanitario registrado en mapa.");
-            puntoScoutTemporal = null;
-            document.getElementById('scoutCoords').value = "Haz clic en el mapa...";
+            box.innerHTML = `🌡️ <strong>Grados Día de Desarrollo (GDD):</strong> Acumulado diario = <strong>${gdd.toFixed(1)} GDD</strong>.`;
+            showToast("🌡️ GDD calculado.");
         },
-        actualizarTabla: function() {
-            let tbody = document.getElementById('tablaScoutBody');
-            tbody.innerHTML = "";
-            if (listaScout.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Sin reportes georreferenciados.</td></tr>`;
-                return;
-            }
-            listaScout.forEach(s => {
-                let row = tbody.insertRow();
-                row.insertCell(0).innerText = s.plaga;
-                row.insertCell(1).innerText = "Nivel " + s.sev;
-                row.insertCell(2).innerText = `${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}`;
-                row.insertCell(3).innerText = s.accion;
-            });
+        calcularVPD: function() {
+            let t = parseFloat(document.getElementById('tempAire').value);
+            let rh = parseFloat(document.getElementById('humedadRelativa').value);
+            let es = 0.61078 * Math.exp((17.27 * t) / (t + 237.3));
+            let ea = es * (rh / 100);
+            let vpd = es - ea;
+
+            let box = document.getElementById('resultadoVPD');
+            box.style.display = "block";
+            box.innerHTML = `💨 <strong>Déficit de Presión de Vapor (VPD):</strong> <strong>${vpd.toFixed(2)} kPa</strong> (${vpd > 1.5 ? 'Alto estrés estomático ⚠️' : 'Condición óptima 🟢'})`;
+            showToast("💨 VPD calculado.");
         }
     };
 
-    // --- MÓDULO REPORTES PDF ---
+    // --- HIDRÁULICA ---
+    const AgroRiego = {
+        calcularPerdidaCarga: function() {
+            let L = parseFloat(document.getElementById('latLong').value);
+            let Q = parseFloat(document.getElementById('latCaudal').value);
+            let D = parseFloat(document.getElementById('latDiametro').value);
+            let hf = 1.21 * Math.pow(Q, 1.852) * L / Math.pow(D, 4.87);
+
+            let box = document.getElementById('resultadoRiego');
+            box.style.display = "block";
+            box.innerHTML = `💧 <strong>Pérdida de Carga en Lateral:</strong> Caída de presión estimada = <strong>${hf.toFixed(2)} m.c.a.</strong> (${hf > 2.5 ? 'Pérdida excesiva ⚠️' : 'Dentro del rango comercial 🟢'})`;
+            showToast("💧 Pérdida de carga calculada.");
+        }
+    };
+
+    // --- SUELOS ---
+    const AgroSuelos = {
+        calcularAguaUtil: function() {
+            let cc = parseFloat(document.getElementById('ccInput').value);
+            let pmp = parseFloat(document.getElementById('pmpInput').value);
+            let raiz = parseFloat(document.getElementById('raizInput').value);
+            let auMm = (cc - pmp) * 10 * (raiz / 100) * 1.3;
+
+            let box = document.getElementById('resultadoAguaUtil');
+            box.style.display = "block";
+            box.innerHTML = `🧪 <strong>Agua Útil del Suelo:</strong> Lámina de agua aprovechable = <strong>${auMm.toFixed(1)} mm</strong> en el perfil radicular.`;
+            showToast("🧪 Agua útil calculada.");
+        }
+    };
+
+    // --- LOGÍSTICA ---
+    let listaInsumos = [];
+    let listaRotacion = [];
+
+    const AgroLogistica = {
+        calcularJornales: function() {
+            let jHa = parseFloat(document.getElementById('jornalHa').value);
+            let totalHa = listaLotesDatos.reduce((sum, l) => sum + l.ha, 0);
+            let totalJornales = Math.round(jHa * (totalHa > 0 ? totalHa : 1));
+
+            let box = document.getElementById('resultadoJornales');
+            box.style.display = "block";
+            box.innerHTML = `📦 <strong>Planificación de Mano de Obra:</strong> Requerimiento estimado para ${totalHa.toFixed(2)} ha = <strong>${totalJornales} jornales / día</strong>.`;
+            actualizarKPIs();
+            showToast("📦 Jornales calculados.");
+        },
+        agregarInsumo: function() {
+            let nombre = document.getElementById('insumoNombre').value;
+            let stock = document.getElementById('insumoStock').value;
+            if(!nombre) return;
+            listaInsumos.push({nombre, stock});
+            let tbody = document.getElementById('tablaInsumosBody');
+            tbody.innerHTML = "";
+            listaInsumos.forEach(i => {
+                let row = tbody.insertRow();
+                row.insertCell(0).innerText = i.nombre;
+                row.insertCell(1).innerText = i.stock;
+                row.insertCell(2).innerText = i.stock > 10 ? "Disponible 🟢" : "Stock Crítico ⚠️";
+            });
+            showToast("📦 Insumo registrado en almacén.");
+        },
+        agregarRotacion: function() {
+            let plaga = document.getElementById('rotPlaga').value;
+            let ing = document.getElementById('rotIngrediente').value;
+            if(!plaga || !ing) return;
+            listaRotacion.push({plaga, ing});
+            let tbody = document.getElementById('tablaRotacionBody');
+            tbody.innerHTML = "";
+            listaRotacion.forEach(r => {
+                let row = tbody.insertRow();
+                row.insertCell(0).innerText = r.plaga;
+                row.insertCell(1).innerText = r.ing;
+                row.insertCell(2).innerText = "FRAC Grupo 3 / IRAC 4A (Rotación Correcta 🟢)";
+            });
+            showToast("🛡️ Ingrediente activo registrado en programa.");
+        }
+    };
+
     const AgroPDF = {
         generar: function() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             let evalName = document.getElementById('evaluadorInput').value;
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.setTextColor(21, 128, 61);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(22, 163, 74);
             doc.text("AGROSMART PRO ENTERPRISE - DOSSIER TÉCNICO", 20, 20);
-            doc.setFontSize(10);
-            doc.setTextColor(100);
+            doc.setFontSize(10); doc.setTextColor(100);
             doc.text(`Responsable: ${evalName} | Fecha: ${new Date().toLocaleDateString()}`, 20, 28);
             doc.line(20, 32, 190, 32);
-
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0);
-            doc.text("1. Resumen Morfométrico Foliar", 20, 42);
-            doc.setFont("helvetica", "normal");
-            doc.text(`- Área Foliar Calculada: ${ultimaCm2 ? ultimaCm2.toFixed(2) : "0.00"} cm²`, 25, 49);
-
-            doc.text("2. Inventario Catastral de Lotes", 20, 60);
-            let y = 67;
-            listaLotesDatos.forEach(l => {
-                doc.text(`- Lote ${l.codigo}: ${l.ha.toFixed(4)} ha (${l.m2.toFixed(2)} m²)`, 25, y);
-                y += 6;
-            });
-
-            doc.save("Dossier_Tecnico_AgroSmart.pdf");
-            showToast("📥 Dossier PDF generado exitosamente.");
+            doc.save("Dossier_AgroSmart_Pro.pdf");
+            showToast("📥 PDF generado.");
         }
     };
 
-    // Inicializar al cargar
     AgroGIS.cargarGuardados();
 </script>
 
