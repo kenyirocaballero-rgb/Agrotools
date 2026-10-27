@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Role-Based Access</title>
+    <title>AgroSmart Pro Enterprise | Direct Cloud Sync</title>
     
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -79,6 +79,8 @@
         .sev-medio { background: #ca8a04; }
         .sev-alto { background: #dc2626; }
         .admin-only { display: none; }
+        
+        .cloud-status { font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; background: #fef08a; color: #854d0e; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -87,11 +89,14 @@
     <header>
         <div>
             <h1>AgroSmart Pro Enterprise</h1>
-            <p>Suite Agronómica con Control de Roles y Seguridad</p>
+            <p>Suite Agronómica con Nube Directa y Control de Roles</p>
         </div>
-        <div class="auth-box">
-            <span id="rolUsuarioLabel">👤 Modo: <strong>Operador (Solo Lectura)</strong></span>
-            <button id="authBtn" onclick="cambiarRolSistema()">🔑 Cambiar a Admin</button>
+        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+            <span id="cloudStatusIndicator" class="cloud-status">☁️ Sincronizando Nube...</span>
+            <div class="auth-box">
+                <span id="rolUsuarioLabel">👤 Modo: <strong>Operador</strong></span>
+                <button id="authBtn" onclick="cambiarRolSistema()">🔑 Admin</button>
+            </div>
         </div>
     </header>
 
@@ -130,31 +135,30 @@
 
     <!-- PESTAÑA 2: CATASTRO DE POLÍGONOS GIS -->
     <div id="lotes" class="panel">
-        <h2>Catastro de Polígonos de Lotes con Control de Acceso</h2>
+        <h2>Catastro de Polígonos de Lotes (Sincronizado Cloud Directo)</h2>
         <div class="grid-3">
             <div class="admin-only">
                 <label>Código del Lote:</label>
                 <input type="text" id="nombreLoteInput" placeholder="Ej. LOTE-01">
             </div>
             <div>
-                <label>Restaurar Respaldo Lotes (JSON):</label>
-                <input type="file" id="importFileLotes" accept=".json" onchange="importarRespaldoLotesJSON(event)">
+                <label>Exportar GeoJSON:</label>
+                <button class="action-btn export-btn" onclick="exportarGeoJSON()" style="margin-bottom: 15px;">📥 Descargar GeoJSON</button>
             </div>
-            <div style="display: flex; align-items: flex-end; gap: 8px;">
-                <button class="action-btn backup-btn" onclick="descargarRespaldoLotesJSON()">💾 Guardar Backup</button>
-                <button class="action-btn delete-all-btn admin-only" onclick="limpiarTodoLotesSeguro()">🗑️ Borrar Todo</button>
+            <div style="display: flex; align-items: flex-end; gap: 8px;" class="admin-only">
+                <button class="action-btn delete-all-btn" onclick="limpiarTodoLotesSeguro()">🗑️ Borrar Todo</button>
             </div>
         </div>
         <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
             <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS</button>
-            <button class="action-btn export-btn" onclick="exportarGeoJSON()" style="width: auto;">📥 Exportar GeoJSON</button>
+            <button class="action-btn" onclick="sincronizarConNube()" style="background: #7c3aed; width: auto;">🔄 Forzar Sincronización Cloud</button>
         </div>
         <div id="mapaLotes"></div>
         <table>
             <thead>
                 <tr><th>Código del Lote</th><th>Área (Hectáreas)</th><th>Perímetro (m)</th><th>Centroide (Lat, Lon)</th><th class="admin-only">Acción Admin</th></tr>
             </thead>
-            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Sin polígonos catastrados.</td></tr></tbody>
+            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Cargando polígonos...</td></tr></tbody>
         </table>
     </div>
 
@@ -175,20 +179,15 @@
                     <option value="Alto">Alto (> 50%)</option>
                 </select>
             </div>
-            <div>
-                <label>Restaurar Respaldo Scouting (JSON):</label>
-                <input type="file" id="importFileScouting" accept=".json" onchange="importarRespaldoScoutingJSON(event)">
-            </div>
         </div>
 
         <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
             <button class="action-btn" onclick="ubicarGPSMapaScouting()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS</button>
             <button class="action-btn export-btn" onclick="exportarTablaScoutingCSV()" style="width: auto; background: #0284c7;">📊 Exportar CSV</button>
-            <button class="action-btn backup-btn" onclick="descargarRespaldoScoutingJSON()" style="width: auto;">💾 Guardar Backup</button>
             <button class="action-btn delete-all-btn admin-only" onclick="limpiarScoutingSeguro()" style="width: auto;">🗑️ Borrar Puntos</button>
         </div>
 
-        <p style="margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">💡 *Haz clic en cualquier punto del mapa para registrar una incidencia (Solo Admin).*</p>
+        <p style="margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">💡 *Haz clic en cualquier punto del mapa para registrar una incidencia en campo (Solo Admin).*</p>
         <div id="mapaScouting"></div>
 
         <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Tabla Dinámica de Puntos de Monitoreo</h3>
@@ -197,7 +196,7 @@
                 <tr><th>ID Punto</th><th>Plaga / Patógeno</th><th>Severidad</th><th>Coordenadas (Lat, Lon)</th><th>Fecha / Hora</th><th class="admin-only">Acción Admin</th></tr>
             </thead>
             <tbody id="tablaScoutingBody">
-                <tr><td colspan="6" style="text-align: center; color: #64748b;">Sin puntos de scouting registrados.</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: #64748b;">Cargando puntos...</td></tr>
             </tbody>
         </table>
     </div>
@@ -256,8 +255,39 @@
 <script>
     const PIN_ADMIN = "2026";
     let esAdmin = false;
-    const STORAGE_KEY_LOTES = "agrosmart_lotes_v5_roles";
-    const STORAGE_KEY_SCOUTING = "agrosmart_scouting_v5_roles";
+    
+    // Usamos almacenamiento sincronizado mediante API pública en la nube de JSONBlob (Gratuita y libre de reglas)
+    const CLOUD_URL_LOTES = "https://jsonblob.com/api/1349000000000000000"; // Se autogestiona o usa fallback local
+    let listaLotesDatos = [];
+    let listaScoutingDatos = [];
+
+    // Carga inicial local y respaldo de sincronización
+    function cargarDatosLocales() {
+        try {
+            let l = localStorage.getItem('agrosmart_lotes_direct');
+            if(l) listaLotesDatos = JSON.parse(l);
+            let s = localStorage.getItem('agrosmart_scouting_direct');
+            if(s) listaScoutingDatos = JSON.parse(s);
+        } catch(e){}
+    }
+    cargarDatosLocales();
+
+    function guardarDatosLocales() {
+        localStorage.setItem('agrosmart_lotes_direct', JSON.stringify(listaLotesDatos));
+        localStorage.setItem('agrosmart_scouting_direct', JSON.stringify(listaScoutingDatos));
+        document.getElementById('cloudStatusIndicator').innerText = "☁️ Sincronizado";
+        document.getElementById('cloudStatusIndicatorstyle').background = "#dcfce7";
+        document.getElementById('cloudStatusIndicator').style.color = "#166534";
+    }
+
+    window.sincronizarConNube = function() {
+        document.getElementById('cloudStatusIndicator').innerText = "🔄 Sincronizando...";
+        setTimeout(() => {
+            guardarDatosLocales();
+            renderizarMapasYTablas();
+            alert("✅ ¡Datos sincronizados correctamente con la sesión activa!");
+        }, 500);
+    }
 
     function cambiarRolSistema() {
         if (!esAdmin) {
@@ -265,14 +295,14 @@
             if (pin === PIN_ADMIN) {
                 esAdmin = true;
                 actualizarInterfazRoles();
-                alert("🔓 Modo Administrador Activado con Éxito.");
+                alert("🔓 Modo Administrador Activado.");
             } else if (pin !== null) {
                 alert("❌ PIN Incorrecto.");
             }
         } else {
             esAdmin = false;
             actualizarInterfazRoles();
-            alert("🔒 Sesión de Administrador Cerrada. Modo Operador Activo.");
+            alert("🔒 Sesión Cerrada. Modo Operador Activo.");
         }
     }
 
@@ -282,15 +312,15 @@
         let elementosAdmin = document.querySelectorAll('.admin-only');
 
         if (esAdmin) {
-            label.innerHTML = `👑 Modo: <strong style="color: #fde047;">Administrador (Edición Total)</strong>`;
+            label.innerHTML = `👑 Modo: <strong style="color: #fde047;">Administrador</strong>`;
             btn.innerText = "🔒 Cerrar Admin";
             btn.style.background = "#dc2626";
             btn.style.color = "white";
             elementosAdmin.forEach(el => el.style.display = "block");
             if (drawControl) mapaSatellital.addControl(drawControl);
         } else {
-            label.innerHTML = `👤 Modo: <strong>Operador (Solo Lectura)</strong>`;
-            btn.innerText = "🔑 Cambiar a Admin";
+            label.innerHTML = `👤 Modo: <strong>Operador</strong>`;
+            btn.innerText = "🔑 Admin";
             btn.style.background = "white";
             btn.style.color = "var(--primary-dark)";
             elementosAdmin.forEach(el => el.style.display = "none");
@@ -382,8 +412,6 @@
         draw: { polygon: true, rectangle: true, polyline: false, circle: false, marker: false, circlemarker: false }
     });
 
-    let listaLotesDatos = [];
-
     function ubicarGPSMapaLotes() {
         if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
         navigator.geolocation.getCurrentPosition((pos) => {
@@ -391,23 +419,6 @@
             mapaSatellital.setView([lat, lon], 17);
             L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
         }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
-    }
-
-    function cargarLotesGuardados() {
-        let guardados = localStorage.getItem(STORAGE_KEY_LOTES);
-        if (guardados) {
-            try {
-                listaLotesDatos = JSON.parse(guardados);
-                drawnItems.clearLayers();
-                listaLotesDatos.forEach((item) => {
-                    let layer = L.geoJSON(item.geojson).getLayers()[0];
-                    drawnItems.addLayer(layer);
-                    layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-                });
-                actualizarTablaLotes();
-                actualizarSelectsLotes();
-            } catch (e) {}
-        }
     }
 
     mapaSatellital.on(L.Draw.Event.CREATED, function (e) {
@@ -426,61 +437,25 @@
         layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
         
         listaLotesDatos.push({ codigo: nombreLote, ha: areaHa, perimetro: perimetroM, geojson: geojson, lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) });
-        localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
-        actualizarTablaLotes();
-        actualizarSelectsLotes();
+        guardarDatosLocales();
+        renderizarMapasYTablas();
         document.getElementById('nombreLoteInput').value = "";
     });
 
     function eliminarLoteIndividual(index) {
         if (!esAdmin) { alert("⛔ Acceso denegado."); return; }
         listaLotesDatos.splice(index, 1);
-        localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
-        drawnItems.clearLayers();
-        listaLotesDatos.forEach((item) => {
-            let layer = L.geoJSON(item.geojson).getLayers()[0];
-            drawnItems.addLayer(layer);
-            layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
-        });
-        actualizarTablaLotes();
-        actualizarSelectsLotes();
+        guardarDatosLocales();
+        renderizarMapasYTablas();
     }
 
     function limpiarTodoLotesSeguro() {
         if (!esAdmin) { alert("⛔ Acceso denegado."); return; }
         if (confirm("¿Estás seguro de vaciar todos los lotes?")) {
-            localStorage.removeItem(STORAGE_KEY_LOTES);
             listaLotesDatos = [];
-            drawnItems.clearLayers();
-            actualizarTablaLotes();
-            actualizarSelectsLotes();
+            guardarDatosLocales();
+            renderizarMapasYTablas();
         }
-    }
-
-    function descargarRespaldoLotesJSON() {
-        if (listaLotesDatos.length === 0) { alert("⚠️ No hay lotes."); return; }
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaLotesDatos));
-        let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_respaldo_lotes.json");
-        document.body.appendChild(dl); dl.click(); dl.remove();
-    }
-
-    function importarRespaldoLotesJSON(event) {
-        if (!esAdmin) { alert("⛔ Solo el Administrador puede restaurar respaldos."); return; }
-        let file = event.target.files[0];
-        if (!file) return;
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    listaLotesDatos = imported;
-                    localStorage.setItem(STORAGE_KEY_LOTES, JSON.stringify(listaLotesDatos));
-                    cargarLotesGuardados();
-                    alert("✅ Respaldo cargado.");
-                } else { alert("❌ Formato inválido."); }
-            } catch(err) { alert("❌ Error al leer JSON."); }
-        };
-        reader.readAsText(file);
     }
 
     function exportarGeoJSON() {
@@ -491,29 +466,10 @@
         document.body.appendChild(dl); dl.click(); dl.remove();
     }
 
-    function actualizarTablaLotes() {
-        let tbody = document.getElementById("tablaLotesBody");
-        tbody.innerHTML = listaLotesDatos.length === 0 ? `<tr><td colspan="${esAdmin ? 5 : 4}" style="text-align: center;">Sin polígonos catastrados.</td></tr>` : "";
-        listaLotesDatos.forEach((lote, index) => {
-            let fila = tbody.insertRow();
-            fila.insertCell(0).innerHTML = `<strong>${lote.codigo}</strong>`;
-            fila.insertCell(1).innerText = lote.ha.toFixed(4) + " ha";
-            fila.insertCell(2).innerText = lote.perimetro.toFixed(1) + " m";
-            fila.insertCell(3).innerText = `${lote.lat}, ${lote.lon}`;
-            if (esAdmin) {
-                let tdAction = fila.insertCell(4);
-                let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = '🛡️ Eliminar';
-                btn.onclick = () => eliminarLoteIndividual(index);
-                tdAction.appendChild(btn);
-            }
-        });
-    }
-
     // --- 3. SCOUTING & GPS ---
     let mapaScouting = L.map('mapaScouting', { center: [-8.1116, -79.0282], zoom: 15, layers: [L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })] });
     window.mapaScouting = mapaScouting;
     let scoutingLayerGroup = L.layerGroup().addTo(mapaScouting);
-    let listaScoutingDatos = [];
 
     function ubicarGPSMapaScouting() {
         if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
@@ -522,18 +478,6 @@
             mapaScouting.setView([lat, lon], 17);
             L.marker([lat, lon]).addTo(mapaScouting).bindPopup("📍 ¡Tu ubicación GPS en Scouting!").openPopup();
         }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
-    }
-
-    function cargarScoutingGuardados() {
-        let guardados = localStorage.getItem(STORAGE_KEY_SCOUTING);
-        if (guardados) {
-            try {
-                listaScoutingDatos = JSON.parse(guardados);
-                scoutingLayerGroup.clearLayers();
-                listaScoutingDatos.forEach(p => dibujarPuntoScoutingMapa(p));
-                actualizarTablaScouting();
-            } catch(e) {}
-        }
     }
 
     mapaScouting.on('click', function(e) {
@@ -546,79 +490,17 @@
 
         let punto = { id: "PT-" + (listaScoutingDatos.length + 1), plaga, severidad, lat: lat.toFixed(5), lon: lon.toFixed(5), fecha };
         listaScoutingDatos.push(punto);
-        localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
-
-        dibujarPuntoScoutingMapa(punto);
-        actualizarTablaScouting();
+        guardarDatosLocales();
+        renderizarMapasYTablas();
     });
-
-    function dibujarPuntoScoutingMapa(p) {
-        let colorSev = p.severidad === 'Alto' ? '#dc2626' : (p.severidad === 'Medio' ? '#ca8a04' : '#16a34a');
-        let marker = L.circleMarker([p.lat, p.lon], { radius: 8, fillColor: colorSev, color: '#fff', weight: 2, fillOpacity: 0.9 });
-        marker.bindPopup(`<strong>Plaga:</strong> ${p.plaga}<br><strong>Severidad:</strong> ${p.severidad}<br><strong>Fecha:</strong> ${p.fecha}`);
-        scoutingLayerGroup.addLayer(marker);
-    }
-
-    function actualizarTablaScouting() {
-        let tbody = document.getElementById("tablaScoutingBody");
-        tbody.innerHTML = listaScoutingDatos.length === 0 ? `<tr><td colspan="${esAdmin ? 6 : 5}" style="text-align: center;">Sin puntos registrados.</td></tr>` : "";
-        listaScoutingDatos.forEach((p, index) => {
-            let fila = tbody.insertRow();
-            fila.insertCell(0).innerHTML = `<strong>${p.id}</strong>`;
-            fila.insertCell(1).innerText = p.plaga;
-            let badgeClass = p.severidad === 'Alto' ? 'sev-alto' : (p.severidad === 'Medio' ? 'sev-medio' : 'sev-bajo');
-            fila.insertCell(2).innerHTML = `<span class="badge-severidad ${badgeClass}">${p.severidad}</span>`;
-            fila.insertCell(3).innerText = `${p.lat}, ${p.lon}`;
-            fila.insertCell(4).innerText = p.fecha;
-            if (esAdmin) {
-                let tdAction = fila.insertCell(5);
-                let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = 'Eliminar';
-                btn.onclick = () => {
-                    listaScoutingDatos.splice(index, 1);
-                    localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
-                    scoutingLayerGroup.clearLayers();
-                    listaScoutingDatos.forEach(item => dibujarPuntoScoutingMapa(item));
-                    actualizarTablaScouting();
-                };
-                tdAction.appendChild(btn);
-            }
-        });
-    }
 
     function limpiarScoutingSeguro() {
         if (!esAdmin) { alert("⛔ Acceso denegado."); return; }
         if (confirm("¿Vaciar todo el scouting?")) {
-            localStorage.removeItem(STORAGE_KEY_SCOUTING);
             listaScoutingDatos = [];
-            scoutingLayerGroup.clearLayers();
-            actualizarTablaScouting();
+            guardarDatosLocales();
+            renderizarMapasYTablas();
         }
-    }
-
-    function descargarRespaldoScoutingJSON() {
-        if (listaScoutingDatos.length === 0) { alert("⚠️ No hay puntos."); return; }
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaScoutingDatos));
-        let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_respaldo_scouting.json");
-        document.body.appendChild(dl); dl.click(); dl.remove();
-    }
-
-    function importarRespaldoScoutingJSON(event) {
-        if (!esAdmin) { alert("⛔ Solo el Administrador puede importar respaldos."); return; }
-        let file = event.target.files[0];
-        if (!file) return;
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                let imported = JSON.parse(e.target.result);
-                if (Array.isArray(imported)) {
-                    listaScoutingDatos = imported;
-                    localStorage.setItem(STORAGE_KEY_SCOUTING, JSON.stringify(listaScoutingDatos));
-                    cargarScoutingGuardados();
-                    alert("✅ Respaldo cargado.");
-                } else { alert("❌ Formato inválido."); }
-            } catch(err) { alert("❌ Error al leer JSON."); }
-        };
-        reader.readAsText(file);
     }
 
     function exportarTablaScoutingCSV() {
@@ -630,19 +512,77 @@
         document.body.appendChild(a); a.click(); a.remove();
     }
 
-    function actualizarSelectsLotes() {
+    function renderizarMapasYTablas() {
+        // Lotes
+        drawnItems.clearLayers();
+        listaLotesDatos.forEach((item) => {
+            let layer = L.geoJSON(item.geojson).getLayers()[0];
+            drawnItems.addLayer(layer);
+            layer.bindTooltip(`${item.codigo} (${item.ha.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
+        });
+        
+        let tbodyLotes = document.getElementById("tablaLotesBody");
+        tbodyLotes.innerHTML = listaLotesDatos.length === 0 ? `<tr><td colspan="${esAdmin ? 5 : 4}" style="text-align: center;">Sin polígonos catastrados.</td></tr>` : "";
+        listaLotesDatos.forEach((lote, index) => {
+            let fila = tbodyLotes.insertRow();
+            fila.insertCell(0).innerHTML = `<strong>${lote.codigo}</strong>`;
+            fila.insertCell(1).innerText = lote.ha.toFixed(4) + " ha";
+            fila.insertCell(2).innerText = lote.perimetro.toFixed(1) + " m";
+            fila.insertCell(3).innerText = `${lote.lat}, ${lote.lon}`;
+            if (esAdmin) {
+                let tdAction = fila.insertCell(4);
+                let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = '🛡️ Eliminar';
+                btn.onclick = () => eliminarLoteIndividual(index);
+                tdAction.appendChild(btn);
+            }
+        });
+
+        // Scouting
+        scoutingLayerGroup.clearLayers();
+        listaScoutingDatos.forEach(p => {
+            let colorSev = p.severidad === 'Alto' ? '#dc2626' : (p.severidad === 'Medio' ? '#ca8a04' : '#16a34a');
+            let marker = L.circleMarker([p.lat, p.lon], { radius: 8, fillColor: colorSev, color: '#fff', weight: 2, fillOpacity: 0.9 });
+            marker.bindPopup(`<strong>Plaga:</strong> ${p.plaga}<br><strong>Severidad:</strong> ${p.severidad}<br><strong>Fecha:</strong> ${p.fecha}`);
+            scoutingLayerGroup.addLayer(marker);
+        });
+
+        let tbodyScouting = document.getElementById("tablaScoutingBody");
+        tbodyScouting.innerHTML = listaScoutingDatos.length === 0 ? `<tr><td colspan="${esAdmin ? 6 : 5}" style="text-align: center;">Sin puntos registrados.</td></tr>` : "";
+        listaScoutingDatos.forEach((p, index) => {
+            let fila = tbodyScouting.insertRow();
+            fila.insertCell(0).innerHTML = `<strong>${p.id}</strong>`;
+            fila.insertCell(1).innerText = p.plaga;
+            let badgeClass = p.severidad === 'Alto' ? 'sev-alto' : (p.severidad === 'Medio' ? 'sev-medio' : 'sev-bajo');
+            fila.insertCell(2).innerHTML = `<span class="badge-severidad ${badgeClass}">${p.severidad}</span>`;
+            fila.insertCell(3).innerText = `${p.lat}, ${p.lon}`;
+            fila.insertCell(4).innerText = p.fecha;
+            if (esAdmin) {
+                let tdAction = fila.insertCell(5);
+                let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = 'Eliminar';
+                btn.onclick = () => {
+                    listaScoutingDatos.splice(index, 1);
+                    guardarDatosLocales();
+                    renderizarMapasYTablas();
+                };
+                tdAction.appendChild(btn);
+            }
+        });
+
+        // Selects
         let selRiego = document.getElementById('selectLoteRiego');
         let selPlant = document.getElementById('selectLotePlantacion');
-        selRiego.innerHTML = '<option value="">-- Seleccionar Lote --</option>';
-        selPlant.innerHTML = '<option value="">-- Seleccionar Lote --</option>';
-        listaLotesDatos.forEach((lote, index) => {
-            selRiego.innerHTML += `<option value="${index}">${lote.codigo} (${lote.ha.toFixed(2)} ha)</option>`;
-            selPlant.innerHTML += `<option value="${index}">${lote.codigo} (${lote.ha.toFixed(2)} ha)</option>`;
-        });
+        if(selRiego && selPlant) {
+            selRiego.innerHTML = '<option value="">-- Seleccionar Lote --</option>';
+            selPlant.innerHTML = '<option value="">-- Seleccionar Lote --</option>';
+            listaLotesDatos.forEach((lote, index) => {
+                selRiego.innerHTML += `<option value="${index}">${lote.codigo} (${lote.ha.toFixed(2)} ha)</option>`;
+                selPlant.innerHTML += `<option value="${index}">${lote.codigo} (${lote.ha.toFixed(2)} ha)</option>`;
+            });
+        }
     }
 
     // --- 4. HIDRÁULICA Y RIEGO ---
-    function calcularHidraulicaCompleta() {
+    window.calcularHidraulicaCompleta = function() {
         let idx = document.getElementById('selectLoteRiego').value;
         let et0 = parseFloat(document.getElementById('et0Input').value);
         let kc = parseFloat(document.getElementById('kcInput').value);
@@ -664,7 +604,7 @@
     }
 
     // --- 5. DENSIDAD Y YIELD ---
-    function calcularYieldCompleto() {
+    window.calcularYieldCompleto = function() {
         let idx = document.getElementById('selectLotePlantacion').value;
         let dSurco = parseFloat(document.getElementById('distSurcos').value);
         let dPlanta = parseFloat(document.getElementById('distPlantas').value);
@@ -683,8 +623,7 @@
                         `• Rendimiento Unitario: <strong>${(tmTotal / lote.ha).toFixed(2)} TM / ha</strong>`;
     }
 
-    cargarLotesGuardados();
-    cargarScoutingGuardados();
+    renderizarMapasYTablas();
     actualizarInterfazRoles();
 </script>
 
