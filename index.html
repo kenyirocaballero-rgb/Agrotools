@@ -246,16 +246,16 @@
 <!-- Firebase SDKs -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // CONFIGURACIÓN DE FIREBASE (Sustituye con tus credenciales de tu consola Firebase)
+    // CONFIGURACIÓN DE FIREBASE (Con tus datos reales de la consola)
     const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "tu-proyecto.firebaseapp.com",
-        projectId: "tu-proyecto",
-        storageBucket: "tu-proyecto.appspot.com",
-        messagingSenderId: "TU_SENDER_ID",
-        appId: "TU_APP_ID"
+        apiKey: "AIzaSyDpFUtZtHMuc6gx7XCNlRdb5SWq8140T_U",
+        authDomain: "tools-ffc3c.firebaseapp.com",
+        projectId: "tools-ffc3c",
+        storageBucket: "tools-ffc3c.firebasestorage.app",
+        messagingSenderId: "532125737786",
+        appId: "1:532125737786:web:03876b3ffc7890eaaea603"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -406,11 +406,8 @@
         if (pin === PIN_ADMIN) {
             let lote = listaLotesDatos[index];
             if (lote.firebaseId) {
-                try {
-                    await deleteDoc(doc(db, "lotes", lote.firebaseId));
-                } catch(e) {}
+                try { await deleteDoc(doc(db, "lotes", lote.firebaseId)); } catch(e) {}
             }
-            listaLotesDatos.splice(index, 1);
             cargarLotesCloud();
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
@@ -615,7 +612,7 @@
                         `• Rendimiento Unitario: <strong>${(tmTotal / lote.ha).toFixed(2)} TM / ha</strong>`;
     }
 
-    // Inicializar carga cloud
+    // Carga inicial desde Firestore
     cargarLotesCloud();
     cargarScoutingCloud();
 </script>
