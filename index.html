@@ -248,7 +248,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // CONFIGURACIÓN DE FIREBASE (Con tus datos reales de la consola)
+    // CONFIGURACIÓN DE FIREBASE REAL
     const firebaseConfig = {
         apiKey: "AIzaSyDpFUtZtHMuc6gx7XCNlRdb5SWq8140T_U",
         authDomain: "tools-ffc3c.firebaseapp.com",
@@ -373,13 +373,15 @@
             });
             actualizarTablaLotes();
             actualizarSelectsLotes();
-        } catch(e) { console.error("Error cargando lotes", e); }
+        } catch(e) { 
+            console.error("Error cargando lotes:", e);
+            document.getElementById("tablaLotesBody").innerHTML = `<tr><td colspan="5" style="text-align: center; color: #dc2626;">Error al conectar con la nube. Verifica tus reglas de Firebase.</td></tr>`;
+        }
     }
 
     mapaSatellital.on(L.Draw.Event.CREATED, async function (e) {
         let layer = e.layer;
         let nombreLote = document.getElementById('nombreLoteInput').value.trim() || `LOTE-${listaLotesDatos.length + 1}`;
-        drawnItems.addLayer(layer);
         
         let geojson = layer.toGeoJSON();
         let areaM2 = turf.area(geojson);
@@ -393,12 +395,16 @@
         try {
             let docRef = await addDoc(collection(db, "lotes"), nuevoLote);
             nuevoLote.firebaseId = docRef.id;
+            drawnItems.addLayer(layer);
             layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
             listaLotesDatos.push(nuevoLote);
             actualizarTablaLotes();
             actualizarSelectsLotes();
             document.getElementById('nombreLoteInput').value = "";
-        } catch(err) { alert("❌ Error guardando en la nube."); }
+        } catch(err) { 
+            console.error(err);
+            alert("❌ Error guardando lote en la nube. Revisa las reglas de Firestore."); 
+        }
     });
 
     window.eliminarLoteIndividual = async function(index) {
@@ -406,7 +412,7 @@
         if (pin === PIN_ADMIN) {
             let lote = listaLotesDatos[index];
             if (lote.firebaseId) {
-                try { await deleteDoc(doc(db, "lotes", lote.firebaseId)); } catch(e) {}
+                try { await deleteDoc(doc(db, "lotes", lote.firebaseId)); } catch(e) { alert("❌ Error al borrar de la nube."); }
             }
             cargarLotesCloud();
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
@@ -421,7 +427,7 @@
                     await deleteDoc(doc(db, "lotes", d.id));
                 }
                 cargarLotesCloud();
-            } catch(e) {}
+            } catch(e) { alert("❌ Error al vaciar lotes."); }
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
@@ -481,7 +487,10 @@
                 dibujarPuntoScoutingMapa(data);
             });
             actualizarTablaScouting();
-        } catch(e) { console.error("Error scouting", e); }
+        } catch(e) { 
+            console.error("Error scouting:", e);
+            document.getElementById("tablaScoutingBody").innerHTML = `<tr><td colspan="6" style="text-align: center; color: #dc2626;">Error al conectar con la nube. Verifica tus reglas de Firebase.</td></tr>`;
+        }
     }
 
     mapaScouting.on('click', async function(e) {
@@ -498,7 +507,10 @@
             listaScoutingDatos.push(punto);
             dibujarPuntoScoutingMapa(punto);
             actualizarTablaScouting();
-        } catch(err) { alert("❌ Error guardando punto en la nube."); }
+        } catch(err) { 
+            console.error(err);
+            alert("❌ Error guardando punto en la nube. Revisa las reglas de Firestore."); 
+        }
     });
 
     function dibujarPuntoScoutingMapa(p) {
@@ -539,7 +551,7 @@
                     await deleteDoc(doc(db, "scouting", d.id));
                 }
                 cargarScoutingCloud();
-            } catch(e) {}
+            } catch(e) { alert("❌ Error al vaciar scouting."); }
         } else if(pin !== null) { alert("❌ PIN incorrecto."); }
     }
 
@@ -612,7 +624,7 @@
                         `• Rendimiento Unitario: <strong>${(tmTotal / lote.ha).toFixed(2)} TM / ha</strong>`;
     }
 
-    // Carga inicial desde Firestore
+    // Inicializar carga cloud
     cargarLotesCloud();
     cargarScoutingCloud();
 </script>
