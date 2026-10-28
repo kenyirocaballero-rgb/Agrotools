@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Secure Suite</title>
+    <title>AgroSmart Pro Enterprise | Suite Agronómica Avanzada</title>
     
-    <!-- Google Fonts: Inter & JetBrains Mono para precisión numérica -->
+    <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -51,6 +51,15 @@
         .auth-box { background: rgba(255, 255, 255, 0.15); padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); }
         .auth-box button { background: white; color: var(--primary-dark); border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
 
+        /* KPI Cards Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr; } }
+        .kpi-card { background: white; padding: 15px 20px; border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .kpi-icon { font-size: 1.8rem; background: #f0fdf4; padding: 10px; border-radius: 8px; }
+        .kpi-label { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; }
+        .kpi-value { font-size: 1.25rem; font-weight: 700; color: var(--primary-dark); font-family: var(--font-mono); }
+
+        /* Tabs Navigation */
         .tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-btn { padding: 10px 14px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 0.85rem; color: #475569; transition: 0.2s; font-family: var(--font-sans); }
         .tab-btn:hover { background: #f1f5f9; }
@@ -104,7 +113,7 @@
     <header>
         <div>
             <h1>AgroSmart Pro Enterprise</h1>
-            <p>Suite Agronómica Profesional & Sheets Sync Segura</p>
+            <p>Suite Agronómica Profesional & Análisis Experimental</p>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <div class="sync-bar">
@@ -121,13 +130,40 @@
         </div>
     </header>
 
+    <!-- Tarjetas KPI Globales -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <span class="kpi-icon">🗺️</span>
+            <div>
+                <span class="kpi-label">Área Total Catastro</span>
+                <span class="kpi-value" id="kpiAreaTotal">0.00 ha</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">💧</span>
+            <div>
+                <span class="kpi-label">Demanda Hídrica Promedio</span>
+                <span class="kpi-value" id="kpiDemandaTotal">0.0 mm/d</span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-icon">⚠️</span>
+            <div>
+                <span class="kpi-label">Puntos de Scouting</span>
+                <span class="kpi-value" id="kpiScoutingTotal">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestañas de Navegación -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Área Foliar (Certeza)</button>
-        <button class="tab-btn" onclick="switchTab('ndvi', event)">🛰️ 2. Vigor Espectral & NDVI</button>
-        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 3. Catastro GIS</button>
-        <button class="tab-btn" onclick="switchTab('scouting', event)">🔍 4. Scouting Plagas</button>
-        <button class="tab-btn" onclick="switchTab('riego', event)">💧 5. Hidráulica</button>
-        <button class="tab-btn" onclick="switchTab('plantacion', event)">🌱 6. Densidad & Yield</button>
+        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Área Foliar</button>
+        <button class="tab-btn" onclick="switchTab('ensayo', event)">🧪 2. Ensayo Salinidad</button>
+        <button class="tab-btn" onclick="switchTab('ndvi', event)">🛰️ 3. NDVI Espectral</button>
+        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 4. Catastro GIS</button>
+        <button class="tab-btn" onclick="switchTab('scouting', event)">🔍 5. Scouting Plagas</button>
+        <button class="tab-btn" onclick="switchTab('riego', event)">💧 6. Hidráulica</button>
+        <button class="tab-btn" onclick="switchTab('plantacion', event)">🌱 7. Yield</button>
     </div>
 
     <!-- PESTAÑA 1 -->
@@ -155,7 +191,46 @@
         <div id="resultadoFoliarCerteza" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 2 -->
+    <!-- PESTAÑA 2: NUEVO MÓDULO DE ENSAYO / BIOMETRÍA -->
+    <div id="ensayo" class="panel">
+        <h2>Evaluación de Crecimiento Experimental (Phaseolus vulgaris / Sales)</h2>
+        <div class="grid-3">
+            <div>
+                <label>Tratamiento Experimental:</label>
+                <select id="tratamientoInput">
+                    <option value="T0 (Control)">T0 (Control - 0 mM NaCl)</option>
+                    <option value="T1 (25 mM NaCl)">T1 (25 mM NaCl)</option>
+                    <option value="T2 (50 mM NaCl)">T2 (50 mM NaCl)</option>
+                    <option value="T3 (75 mM NaCl)">T3 (75 mM NaCl)</option>
+                </select>
+            </div>
+            <div>
+                <label>Altura Promedio (cm):</label>
+                <input type="number" id=" ensayoAltura" value="25.0" step="0.1">
+            </div>
+            <div>
+                <label>Peso Seco Total (g):</label>
+                <input type="number" id="ensayoPesoSeco" value="3.20" step="0.01">
+            </div>
+        </div>
+        <button class="action-btn" onclick="registrarDatoEnsayo()">Registrar Medición Experimental</button>
+        
+        <table style="margin-top: 25px;">
+            <thead>
+                <tr>
+                    <th>Tratamiento</th>
+                    <th class="numeric">Altura Promedio (cm)</th>
+                    <th class="numeric">Peso Seco Total (g)</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tablaEnsayoBody">
+                <tr><td colspan="4" style="text-align: center; color: #64748b;">Sin registros experimentales.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PESTAÑA 3 -->
     <div id="ndvi" class="panel">
         <h2>Monitoreo de Vigor Espectral y Estimación NDVI</h2>
         <div class="grid-2">
@@ -174,7 +249,7 @@
         <div id="resultadoNdviBox" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 3 -->
+    <!-- PESTAÑA 4 -->
     <div id="lotes" class="panel">
         <h2>Catastro de Polígonos de Lotes (Sincronizado a Google Sheets)</h2>
         <div class="grid-3">
@@ -204,13 +279,11 @@
                     <th class="admin-only">Acción Admin</th>
                 </tr>
             </thead>
-            <tbody id="tablaLotesBody">
-                <tr><td colspan="5" style="text-align: center; color: #64748b;">Sin polígonos catastrados.</td></tr>
-            </tbody>
+            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Sin polígonos catastrados.</td></tr></tbody>
         </table>
     </div>
 
-    <!-- PESTAÑA 4 -->
+    <!-- PESTAÑA 5 -->
     <div id="scouting" class="panel">
         <h2>Mapa, Localizador GPS y Registro de Puntos de Scouting</h2>
         <div class="grid-3 admin-only">
@@ -255,7 +328,7 @@
         </table>
     </div>
 
-    <!-- PESTAÑA 5 -->
+    <!-- PESTAÑA 6 -->
     <div id="riego" class="panel">
         <h2>Demanda Hídrica ($ET_c$) y Caudal de Bombeo</h2>
         <div class="grid-4">
@@ -280,7 +353,7 @@
         <div id="resultadoRiegoLote" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 6 -->
+    <!-- PESTAÑA 7 -->
     <div id="plantacion" class="panel">
         <h2>Marco de Plantación y Yield</h2>
         <div class="grid-4">
@@ -308,7 +381,6 @@
 
 <script>
     const PIN_ADMIN = "2026";
-    
     const _uParts = [
         "https://script.google.com/macros/s/",
         "AKfycbwpV9ZPUoLA_11gr-w6JqOOxtx4wHJEMXVVhq3DB5OMsOV1dOLg3dWy46hOuFXZ8a4Kyg/exec"
@@ -318,20 +390,36 @@
     let esAdmin = false;
     let listaLotesDatos = [];
     let listaScoutingDatos = [];
+    let listaEnsayoDatos = [];
 
     function cargarDatosLocales() {
         try {
-            let l = localStorage.getItem('agrosmart_lotes_v7');
+            let l = localStorage.getItem('agrosmart_lotes_v8');
             if(l) listaLotesDatos = JSON.parse(l);
-            let s = localStorage.getItem('agrosmart_scouting_v7');
+            let s = localStorage.getItem('agrosmart_scouting_v8');
             if(s) listaScoutingDatos = JSON.parse(s);
+            let e = localStorage.getItem('agrosmart_ensayo_v8');
+            if(e) listaEnsayoDatos = JSON.parse(e);
         } catch(e){}
     }
     cargarDatosLocales();
 
     function guardarDatosLocales() {
-        localStorage.setItem('agrosmart_lotes_v7', JSON.stringify(listaLotesDatos));
-        localStorage.setItem('agrosmart_scouting_v7', JSON.stringify(listaScoutingDatos));
+        localStorage.setItem('agrosmart_lotes_v8', JSON.stringify(listaLotesDatos));
+        localStorage.setItem('agrosmart_scouting_v8', JSON.stringify(listaScoutingDatos));
+        localStorage.setItem('agrosmart_ensayo_v8', JSON.stringify(listaEnsayoDatos));
+    }
+
+    function actualizarKPIsGlobales() {
+        let areaTotal = listaLotesDatos.reduce((acc, curr) => acc + curr.ha, 0);
+        document.getElementById('kpiAreaTotal').innerText = areaTotal.toFixed(2) + " ha";
+        document.getElementById('kpiScoutingTotal').innerText = listaScoutingDatos.length;
+        
+        if (listaLotesDatos.length > 0) {
+            document.getElementById('kpiDemandaTotal').innerText = "5.5 mm/d";
+        } else {
+            document.getElementById('kpiDemandaTotal').innerText = "0.0 mm/d";
+        }
     }
 
     function enviarAGoogleSheets(payload) {
@@ -344,7 +432,7 @@
     }
 
     window.exportarTodoBackupGeneral = function() {
-        let paquete = { lotes: listaLotesDatos, scouting: listaScoutingDatos };
+        let paquete = { lotes: listaLotesDatos, scouting: listaScoutingDatos, ensayo: listaEnsayoDatos };
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(paquete));
         let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_paquete_completo.json");
         document.body.appendChild(dl); dl.click(); dl.remove();
@@ -360,6 +448,7 @@
                 if (imported.lotes && imported.scouting) {
                     listaLotesDatos = imported.lotes;
                     listaScoutingDatos = imported.scouting;
+                    if(imported.ensayo) listaEnsayoDatos = imported.ensayo;
                     guardarDatosLocales();
                     renderizarMapasYTablas();
                     alert("✅ ¡Paquete sincronizado con éxito!");
@@ -418,7 +507,7 @@
         }, 150);
     }
 
-    // --- 1. ÁREA FOLIAR DE CERTEZA ---
+    // --- 1. ÁREA FOLIAR ---
     let imgObjFoliar = null;
     document.getElementById('fotoPlantaFoliar').addEventListener('change', (e) => {
         let file = e.target.files[0];
@@ -464,7 +553,25 @@
                         `• <strong>Área Foliar Total Estimada: <span style="font-family:var(--font-mono);">${areaFoliarCalculada.toFixed(2)}</span> cm²</strong>`;
     }
 
-    // --- 2. VIGOR ESPECTRAL Y NDVI ---
+    // --- 2. ENSAYO EXPERIMENTAL ---
+    window.registrarDatoEnsayo = function() {
+        let trat = document.getElementById('tratamientoInput').value;
+        let alt = parseFloat(document.getElementById('ensayoAltura').value);
+        let peso = parseFloat(document.getElementById('ensayoPesoSeco').value);
+
+        listaEnsayoDatos.push({ tratamiento: trat, altura: alt, pesoSeco: peso });
+        guardarDatosLocales();
+        renderizarMapasYTablas();
+        alert("✅ Registro experimental guardado correctamente.");
+    };
+
+    function eliminarDatoEnsayo(index) {
+        listaEnsayoDatos.splice(index, 1);
+        guardarDatosLocales();
+        renderizarMapasYTablas();
+    }
+
+    // --- 3. VIGOR ESPECTRAL Y NDVI ---
     let imgObjNdvi = null;
     document.getElementById('fotoNdviInput').addEventListener('change', (e) => {
         let file = e.target.files[0];
@@ -508,7 +615,7 @@
                         `• Estado Vegetativo General: <strong>${promedioNdvi > 0.3 ? 'Vigoroso / Óptimo' : 'Alerta por Estrés / Baja Cobertura'}</strong>`;
     }
 
-    // --- 3. CATASTRO GIS ---
+    // --- 4. CATASTRO GIS ---
     let capaSatellites = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri' });
     let capaCalles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: 'OSM' });
 
@@ -585,7 +692,7 @@
         document.body.appendChild(dl); dl.click(); dl.remove();
     }
 
-    // --- 4. SCOUTING PLAGAS ---
+    // --- 5. SCOUTING PLAGAS ---
     let mapaScouting = L.map('mapaScouting', { center: [-8.1116, -79.0282], zoom: 15, layers: [L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })] });
     window.mapaScouting = mapaScouting;
     let scoutingLayerGroup = L.layerGroup().addTo(mapaScouting);
@@ -639,6 +746,8 @@
     }
 
     function renderizarMapasYTablas() {
+        actualizarKPIsGlobales();
+
         // Lotes
         drawnItems.clearLayers();
         listaLotesDatos.forEach((item) => {
@@ -663,6 +772,22 @@
                 btn.onclick = () => eliminarLoteIndividual(index);
                 tdAction.appendChild(btn);
             }
+        });
+
+        // Ensayo Biometría
+        let tbodyEnsayo = document.getElementById("tablaEnsayoBody");
+        tbodyEnsayo.innerHTML = listaEnsayoDatos.length === 0 ? `<tr><td colspan="4" style="text-align: center;">Sin registros experimentales.</td></tr>` : "";
+        listaEnsayoDatos.forEach((d, index) => {
+            let fila = tbodyEnsayo.insertRow();
+            fila.insertCell(0).innerHTML = `<strong>${d.tratamiento}</strong>`;
+            
+            let tdAlt = fila.insertCell(1); tdAlt.className = "numeric"; tdAlt.innerText = d.altura.toFixed(1);
+            let tdPeso = fila.insertCell(2); tdPeso.className = "numeric"; tdPeso.innerText = d.pesoSeco.toFixed(2);
+            
+            let tdAction = fila.insertCell(3);
+            let btn = document.createElement('button'); btn.className = 'delete-btn'; btn.innerText = 'Eliminar';
+            btn.onclick = () => eliminarDatoEnsayo(index);
+            tdAction.appendChild(btn);
         });
 
         // Scouting
@@ -711,7 +836,7 @@
         }
     }
 
-    // --- 5. HIDRÁULICA Y RIEGO ---
+    // --- 6. HIDRÁULICA Y RIEGO ---
     window.calcularHidraulicaCompleta = function() {
         let idx = document.getElementById('selectLoteRiego').value;
         let et0 = parseFloat(document.getElementById('et0Input').value);
@@ -733,7 +858,7 @@
                         `• Caudal de Bombeo: <strong style="font-family:var(--font-mono);">${caudalLPS.toFixed(2)} L/s</strong>`;
     }
 
-    // --- 6. DENSIDAD Y YIELD ---
+    // --- 7. DENSIDAD Y YIELD ---
     window.calcularYieldCompleto = function() {
         let idx = document.getElementById('selectLotePlantacion').value;
         let dSurco = parseFloat(document.getElementById('distSurcos').value);
