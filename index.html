@@ -277,8 +277,8 @@
 
 <script>
     const PIN_ADMIN = "2026";
-    // ⚠️ PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT_AQUI/exec";
+    // URL de tu aplicación web de Google Apps Script integrada
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbxBF4SCUBkEdFPEtQptmoUUb3tjjndoIQxqKdAxf5ufCvJx2oLmuCU0sCOLQeNr7nne1g/exec";
 
     let esAdmin = false;
     let listaLotesDatos = [];
@@ -301,14 +301,12 @@
 
     // Enviar datos en segundo plano a Google Sheets
     function enviarAGoogleSheets(payload) {
-        if (!GOOGLE_SHEETS_URL.includes("TU_URL")) {
-            fetch(GOOGLE_SHEETS_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            }).catch(err => console.error("Error sincronizando Sheets:", err));
-        }
+        fetch(GOOGLE_SHEETS_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        }).catch(err => console.error("Error sincronizando Sheets:", err));
     }
 
     window.exportarTodoBackupGeneral = function() {
@@ -523,7 +521,7 @@
         listaLotesDatos.push(nuevoLote);
         guardarDatosLocales();
         
-        // Enviar automáticamente a Google Sheets
+        // Sincronización automática a Google Sheets
         enviarAGoogleSheets({ tipo: "lote", codigo: nombreLote, ha: areaHa.toFixed(4), perimetro: perimetroM.toFixed(1), lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) });
 
         renderizarMapasYTablas();
@@ -584,7 +582,7 @@
         listaScoutingDatos.push(punto);
         guardarDatosLocales();
 
-        // Enviar automáticamente a Google Sheets
+        // Sincronización automática a Google Sheets
         enviarAGoogleSheets({ tipo: "scouting", id: puntoId, plaga: plaga, severidad: severidad, lat: lat.toFixed(5), lon: lon.toFixed(5) });
 
         renderizarMapasYTablas();
