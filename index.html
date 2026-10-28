@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Advanced Suite</title>
+    <title>AgroSmart Pro Enterprise | Professional Suite</title>
     
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -88,14 +88,14 @@
     <header>
         <div>
             <h1>AgroSmart Pro Enterprise</h1>
-            <p>Suite Agronómica Profesional</p>
+            <p>Suite Agronómica Profesional & Google Sheets Sync</p>
         </div>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <div class="sync-bar">
-                <span>🔄 <strong>Sync:</strong></span>
-                <button onclick="exportarTodoBackupGeneral()">📥 Bajar Datos</button>
+                <span>🔄 <strong>Backup:</strong></span>
+                <button onclick="exportarTodoBackupGeneral()">📥 Descargar</button>
                 <label style="cursor: pointer; background: white; color: var(--primary-dark); padding: 6px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin: 0;">
-                    📤 Subir Datos <input type="file" id="importarPaqueteInput" accept=".json" style="display: none;" onchange="importarTodoBackupGeneral(event)">
+                    📤 Subir <input type="file" id="importarPaqueteInput" accept=".json" style="display: none;" onchange="importarTodoBackupGeneral(event)">
                 </label>
             </div>
             <div class="auth-box">
@@ -117,7 +117,6 @@
     <!-- PESTAÑA 1: ÁREA FOLIAR DE CERTEZA -->
     <div id="biometria" class="panel active">
         <h2>Módulo de Medición de Área Foliar con Alta Certeza</h2>
-        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Cálculo analítico basado en objeto de calibración referencial y conteo píxel por píxel.</p>
         <div class="grid-3">
             <div>
                 <label>Fotografía Cenital de Hoja/Planta:</label>
@@ -143,7 +142,6 @@
     <!-- PESTAÑA 2: VIGOR ESPECTRAL Y NDVI -->
     <div id="ndvi" class="panel">
         <h2>Monitoreo de Vigor Espectral y Estimación NDVI</h2>
-        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Evaluación del índice de vegetación y estrés hídrico/nutricional por clasificación de bandas de color.</p>
         <div class="grid-2">
             <div>
                 <label>Fotografía Multiespectral / Drone:</label>
@@ -162,7 +160,7 @@
 
     <!-- PESTAÑA 3: CATASTRO DE POLÍGONOS GIS -->
     <div id="lotes" class="panel">
-        <h2>Catastro de Polígonos de Lotes (GIS Corregido)</h2>
+        <h2>Catastro de Polígonos de Lotes (Sincronizado a Google Sheets)</h2>
         <div class="grid-3">
             <div class="admin-only">
                 <label>Código del Lote:</label>
@@ -177,7 +175,7 @@
             </div>
         </div>
         <div style="margin-bottom: 15px;">
-            <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS (Alta Precisión)</button>
+            <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS</button>
         </div>
         <div id="mapaLotes"></div>
         <table>
@@ -212,7 +210,7 @@
             <button class="action-btn delete-all-btn admin-only" onclick="limpiarScoutingSeguro()" style="width: auto;">🗑️ Borrar Puntos</button>
         </div>
 
-        <p style="margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">💡 *Haz clic en cualquier punto del mapa para registrar una incidencia con puntero optimizado.*</p>
+        <p style="margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">💡 *Haz clic en el mapa para registrar una incidencia con envío automático a Google Sheets.*</p>
         <div id="mapaScouting"></div>
 
         <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Tabla Dinámica de Puntos de Monitoreo</h3>
@@ -279,23 +277,38 @@
 
 <script>
     const PIN_ADMIN = "2026";
+    // ⚠️ PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE GOOGLE APPS SCRIPT
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/TU_URL_DE_APPS_SCRIPT_AQUI/exec";
+
     let esAdmin = false;
     let listaLotesDatos = [];
     let listaScoutingDatos = [];
 
     function cargarDatosLocales() {
         try {
-            let l = localStorage.getItem('agrosmart_lotes_v6');
+            let l = localStorage.getItem('agrosmart_lotes_v7');
             if(l) listaLotesDatos = JSON.parse(l);
-            let s = localStorage.getItem('agrosmart_scouting_v6');
+            let s = localStorage.getItem('agrosmart_scouting_v7');
             if(s) listaScoutingDatos = JSON.parse(s);
         } catch(e){}
     }
     cargarDatosLocales();
 
     function guardarDatosLocales() {
-        localStorage.setItem('agrosmart_lotes_v6', JSON.stringify(listaLotesDatos));
-        localStorage.setItem('agrosmart_scouting_v6', JSON.stringify(listaScoutingDatos));
+        localStorage.setItem('agrosmart_lotes_v7', JSON.stringify(listaLotesDatos));
+        localStorage.setItem('agrosmart_scouting_v7', JSON.stringify(listaScoutingDatos));
+    }
+
+    // Enviar datos en segundo plano a Google Sheets
+    function enviarAGoogleSheets(payload) {
+        if (!GOOGLE_SHEETS_URL.includes("TU_URL")) {
+            fetch(GOOGLE_SHEETS_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).catch(err => console.error("Error sincronizando Sheets:", err));
+        }
     }
 
     window.exportarTodoBackupGeneral = function() {
@@ -399,12 +412,11 @@
 
         for (let i = 0; i < data.length; i += 4) {
             let r = data[i], g = data[i+1], b = data[i+2];
-            // Filtro estricto de follaje verde saludable
             if (g > r * 1.1 && g > b * 1.05 && g > 40) {
                 pixelesVerdes++;
-                data[i] = 34; data[i+1] = 197; data[i+2] = 94; // Verde marcado
+                data[i] = 34; data[i+1] = 197; data[i+2] = 94;
             } else {
-                data[i] = 241; data[i+1] = 245; data[i+2] = 249; // Fondo neutro
+                data[i] = 241; data[i+1] = 245; data[i+2] = 249;
             }
         }
         ctx.putImageData(imgData, 0, 0);
@@ -443,16 +455,15 @@
 
         for (let i = 0; i < data.length; i += 4) {
             let r = data[i], g = data[i+1], b = data[i+2];
-            // Simulación de cálculo NDVI basada en reflectancia de bandas (NIR ~ G, Rojo ~ R)
             let ndviVal = (g - r) / (g + r + 1e-6);
             sumaNdvi += ndviVal;
 
             if (ndviVal > 0.3) {
-                data[i] = 22; data[i+1] = 163; data[i+2] = 74; // Alta densidad (Verde oscuro)
+                data[i] = 22; data[i+1] = 163; data[i+2] = 74;
             } else if (ndviVal > 0.1) {
-                data[i] = 234; data[i+1] = 179; data[i+2] = 8; // Moderada (Amarillo)
+                data[i] = 234; data[i+1] = 179; data[i+2] = 8;
             } else {
-                data[i] = 220; data[i+1] = 38; data[i+2] = 38; // Suelo desnudo / Estrés (Rojo)
+                data[i] = 220; data[i+1] = 38; data[i+2] = 38;
             }
         }
         ctx.putImageData(imgData, 0, 0);
@@ -489,7 +500,7 @@
             mapaSatellital.setView([lat, lon], 17);
             if(gpsMarkerLotes) mapaSatellital.removeLayer(gpsMarkerLotes);
             gpsMarkerLotes = L.circleMarker([lat, lon], { radius: 10, fillColor: '#3b82f6', color: '#fff', weight: 3, fillOpacity: 1 })
-                .addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual (Alta Precisión)!").openPopup();
+                .addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
         }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
     }
 
@@ -508,8 +519,13 @@
 
         layer.bindTooltip(`${nombreLote} (${areaHa.toFixed(2)} ha)`, { permanent: true, direction: 'center', className: 'lote-etiqueta' }).openTooltip();
         
-        listaLotesDatos.push({ codigo: nombreLote, ha: areaHa, perimetro: perimetroM, geojson: geojson, lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) });
+        let nuevoLote = { codigo: nombreLote, ha: areaHa, perimetro: perimetroM, geojson: geojson, lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) };
+        listaLotesDatos.push(nuevoLote);
         guardarDatosLocales();
+        
+        // Enviar automáticamente a Google Sheets
+        enviarAGoogleSheets({ tipo: "lote", codigo: nombreLote, ha: areaHa.toFixed(4), perimetro: perimetroM.toFixed(1), lat: coordsC[1].toFixed(5), lon: coordsC[0].toFixed(5) });
+
         renderizarMapasYTablas();
         document.getElementById('nombreLoteInput').value = "";
     });
@@ -563,9 +579,14 @@
         let severidad = document.getElementById('severidadInput').value;
         let fecha = new Date().toLocaleString();
 
-        let punto = { id: "PT-" + (listaScoutingDatos.length + 1), plaga, severidad, lat: lat.toFixed(5), lon: lon.toFixed(5), fecha };
+        let puntoId = "PT-" + (listaScoutingDatos.length + 1);
+        let punto = { id: puntoId, plaga, severidad, lat: lat.toFixed(5), lon: lon.toFixed(5), fecha };
         listaScoutingDatos.push(punto);
         guardarDatosLocales();
+
+        // Enviar automáticamente a Google Sheets
+        enviarAGoogleSheets({ tipo: "scouting", id: puntoId, plaga: plaga, severidad: severidad, lat: lat.toFixed(5), lon: lon.toFixed(5) });
+
         renderizarMapasYTablas();
     });
 
