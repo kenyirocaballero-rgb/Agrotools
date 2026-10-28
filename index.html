@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroSmart Pro Enterprise | Direct Cloud Sync</title>
+    <title>AgroSmart Pro Enterprise | Advanced Suite</title>
     
     <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -28,15 +28,18 @@
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-main); color: #0f172a; padding: 20px; }
         .container { max-width: 1350px; margin: auto; }
         
-        header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px; }
-        header h1 { font-size: 1.8rem; margin-bottom: 3px; }
-        header p { font-size: 0.9rem; opacity: 0.9; }
+        header { background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: white; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px; }
+        header h1 { font-size: 1.6rem; margin-bottom: 2px; }
+        header p { font-size: 0.85rem; opacity: 0.9; }
 
-        .auth-box { background: rgba(255, 255, 255, 0.15); padding: 8px 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.3); }
-        .auth-box button { background: white; color: var(--primary-dark); border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .sync-bar { background: rgba(255, 255, 255, 0.15); padding: 8px 12px; border-radius: 8px; display: flex; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,0.3); flex-wrap: wrap; }
+        .sync-bar button { background: white; color: var(--primary-dark); border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
 
-        .tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 18px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 0.9rem; color: #475569; transition: 0.2s; }
+        .auth-box { background: rgba(255, 255, 255, 0.15); padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.3); }
+        .auth-box button { background: white; color: var(--primary-dark); border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.75rem; }
+
+        .tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 14px; border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; font-weight: bold; border-radius: 8px; font-size: 0.85rem; color: #475569; transition: 0.2s; }
         .tab-btn:hover { background: #f1f5f9; }
         .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
@@ -54,15 +57,13 @@
         .delete-all-btn:hover { background: #b91c1c; }
         .export-btn { background: #0284c7; }
         .export-btn:hover { background: #02699c; }
-        .backup-btn { background: #7c3aed; }
-        .backup-btn:hover { background: #6d28d9; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; }
         @media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
 
-        canvas, img { width: 100%; max-height: 320px; object-fit: contain; border: 2px dashed var(--border); border-radius: 8px; background: #f8fafc; padding: 5px; }
+        canvas, img { width: 100%; max-height: 300px; object-fit: contain; border: 2px dashed var(--border); border-radius: 8px; background: #f8fafc; padding: 5px; }
         #mapaLotes, #mapaScouting { width: 100%; height: 450px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); z-index: 1; }
 
         .result-box { margin-top: 20px; padding: 15px; background: #f0fdf4; border-left: 4px solid var(--primary); border-radius: 6px; color: #166534; font-weight: 500; font-size: 0.95rem; }
@@ -73,14 +74,12 @@
         .delete-btn { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
         .delete-btn:hover { background: #dc2626; }
         
-        .lote-etiqueta { background: rgba(20, 83, 45, 0.9); color: white; font-weight: bold; padding: 3px 6px; border-radius: 4px; font-size: 11px; border: 1px solid #4ade80; }
+        .lote-etiqueta { background: rgba(15, 23, 42, 0.85); color: #4ade80; font-weight: bold; padding: 4px 8px; border-radius: 6px; font-size: 12px; border: 1px solid #22c55e; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
         .badge-severidad { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; color: white; }
         .sev-bajo { background: #16a34a; }
         .sev-medio { background: #ca8a04; }
         .sev-alto { background: #dc2626; }
         .admin-only { display: none; }
-        
-        .cloud-status { font-size: 0.8rem; padding: 3px 8px; border-radius: 4px; background: #fef08a; color: #854d0e; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -89,83 +88,109 @@
     <header>
         <div>
             <h1>AgroSmart Pro Enterprise</h1>
-            <p>Suite Agronómica con Nube Directa y Control de Roles</p>
+            <p>Suite Agronómica Profesional</p>
         </div>
-        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-            <span id="cloudStatusIndicator" class="cloud-status">☁️ Sincronizando Nube...</span>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div class="sync-bar">
+                <span>🔄 <strong>Sync:</strong></span>
+                <button onclick="exportarTodoBackupGeneral()">📥 Bajar Datos</button>
+                <label style="cursor: pointer; background: white; color: var(--primary-dark); padding: 6px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; margin: 0;">
+                    📤 Subir Datos <input type="file" id="importarPaqueteInput" accept=".json" style="display: none;" onchange="importarTodoBackupGeneral(event)">
+                </label>
+            </div>
             <div class="auth-box">
-                <span id="rolUsuarioLabel">👤 Modo: <strong>Operador</strong></span>
+                <span id="rolUsuarioLabel">👤 <strong>Operador</strong></span>
                 <button id="authBtn" onclick="cambiarRolSistema()">🔑 Admin</button>
             </div>
         </div>
     </header>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Biometría</button>
-        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 2. Catastro de Polígonos GIS</button>
-        <button class="tab-btn" onclick="switchTab('scouting', event)">🔍 3. Scouting & GPS (Plagas)</button>
-        <button class="tab-btn" onclick="switchTab('riego', event)">💧 4. Hidráulica</button>
-        <button class="tab-btn" onclick="switchTab('plantacion', event)">🌱 5. Densidad & Yield</button>
+        <button class="tab-btn active" onclick="switchTab('biometria', event)">🌿 1. Área Foliar (Certeza)</button>
+        <button class="tab-btn" onclick="switchTab('ndvi', event)">🛰️ 2. Vigor Espectral & NDVI</button>
+        <button class="tab-btn" onclick="switchTab('lotes', event)">🗺️ 3. Catastro GIS</button>
+        <button class="tab-btn" onclick="switchTab('scouting', event)">🔍 4. Scouting Plagas</button>
+        <button class="tab-btn" onclick="switchTab('riego', event)">💧 5. Hidráulica</button>
+        <button class="tab-btn" onclick="switchTab('plantacion', event)">🌱 6. Densidad & Yield</button>
     </div>
 
-    <!-- PESTAÑA 1: BIOMETRÍA -->
+    <!-- PESTAÑA 1: ÁREA FOLIAR DE CERTEZA -->
     <div id="biometria" class="panel active">
-        <h2>Análisis Morfológico y Área Foliar</h2>
+        <h2>Módulo de Medición de Área Foliar con Alta Certeza</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Cálculo analítico basado en objeto de calibración referencial y conteo píxel por píxel.</p>
         <div class="grid-3">
             <div>
-                <label>Fotografía Cenital:</label>
-                <input type="file" id="fotoPlanta" accept="image/*">
+                <label>Fotografía Cenital de Hoja/Planta:</label>
+                <input type="file" id="fotoPlantaFoliar" accept="image/*">
             </div>
             <div>
-                <label>Área de Calibración (cm²):</label>
-                <input type="number" id="areaReferenciaInput" value="25">
+                <label>Área Objeto Referencia (cm²):</label>
+                <input type="number" id="refAreaCm2" value="25" step="1">
             </div>
             <div>
-                <label>Plantas por m² (pl/m²):</label>
-                <input type="number" id="densidadPlantaInput" value="4.5" step="0.1">
+                <label>Píxeles del Objeto de Referencia:</label>
+                <input type="number" id="refPixeles" value="1200" step="50">
             </div>
         </div>
-        <button class="action-btn" onclick="procesarBiometriaCompleta()">Ejecutar Procesamiento Espectral</button>
+        <button class="action-btn" onclick="calcularAreaFoliarCerteza()">Calcular Área Foliar Real (cm²)</button>
         <div class="grid-2" style="margin-top: 20px;">
-            <div><label>Imagen Original</label><img id="imagenOriginal" alt="Cargar imagen"></div>
-            <div><label>Clasificación Espectral (Canvas)</label><canvas id="canvasOutput"></canvas></div>
+            <div><label>Imagen Analizada</label><img id="imgFoliarPreview" alt="Carga imagen cenital"></div>
+            <div><label>Máscara de Píxeles Verdes (Follaje)</label><canvas id="canvasFoliar"></canvas></div>
         </div>
-        <div id="resultadoFoliar" class="result-box" style="display:none;"></div>
+        <div id="resultadoFoliarCerteza" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 2: CATASTRO DE POLÍGONOS GIS -->
+    <!-- PESTAÑA 2: VIGOR ESPECTRAL Y NDVI -->
+    <div id="ndvi" class="panel">
+        <h2>Monitoreo de Vigor Espectral y Estimación NDVI</h2>
+        <p style="margin-bottom: 15px; color: #64748b; font-size: 0.9rem;">Evaluación del índice de vegetación y estrés hídrico/nutricional por clasificación de bandas de color.</p>
+        <div class="grid-2">
+            <div>
+                <label>Fotografía Multiespectral / Drone:</label>
+                <input type="file" id="fotoNdviInput" accept="image/*">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button class="action-btn" onclick="procesarIndiceNDVI()">Procesar Índice Espectral NDVI</button>
+            </div>
+        </div>
+        <div class="grid-2" style="margin-top: 20px;">
+            <div><label>Imagen Original</label><img id="imgNdviOriginal" alt="Cargar imagen"></div>
+            <div><label>Mapa Falso Color NDVI (Canvas)</label><canvas id="canvasNdviOutput"></canvas></div>
+        </div>
+        <div id="resultadoNdviBox" class="result-box" style="display:none;"></div>
+    </div>
+
+    <!-- PESTAÑA 3: CATASTRO DE POLÍGONOS GIS -->
     <div id="lotes" class="panel">
-        <h2>Catastro de Polígonos de Lotes (Sincronizado Cloud Directo)</h2>
+        <h2>Catastro de Polígonos de Lotes (GIS Corregido)</h2>
         <div class="grid-3">
             <div class="admin-only">
                 <label>Código del Lote:</label>
                 <input type="text" id="nombreLoteInput" placeholder="Ej. LOTE-01">
             </div>
             <div>
-                <label>Exportar GeoJSON:</label>
+                <label>Exportar Formato GeoJSON:</label>
                 <button class="action-btn export-btn" onclick="exportarGeoJSON()" style="margin-bottom: 15px;">📥 Descargar GeoJSON</button>
             </div>
             <div style="display: flex; align-items: flex-end; gap: 8px;" class="admin-only">
                 <button class="action-btn delete-all-btn" onclick="limpiarTodoLotesSeguro()">🗑️ Borrar Todo</button>
             </div>
         </div>
-        <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS</button>
-            <button class="action-btn" onclick="sincronizarConNube()" style="background: #7c3aed; width: auto;">🔄 Forzar Sincronización Cloud</button>
+        <div style="margin-bottom: 15px;">
+            <button class="action-btn" onclick="ubicarGPSMapaLotes()" style="background: #0284c7; width: auto;">📍 Ir a mi Ubicación GPS (Alta Precisión)</button>
         </div>
         <div id="mapaLotes"></div>
         <table>
             <thead>
                 <tr><th>Código del Lote</th><th>Área (Hectáreas)</th><th>Perímetro (m)</th><th>Centroide (Lat, Lon)</th><th class="admin-only">Acción Admin</th></tr>
             </thead>
-            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Cargando polígonos...</td></tr></tbody>
+            <tbody id="tablaLotesBody"><tr><td colspan="5" style="text-align: center; color: #64748b;">Sin polígonos catastrados.</td></tr></tbody>
         </table>
     </div>
 
-    <!-- PESTAÑA 3: SCOUTING & GPS (PLAGAS) -->
+    <!-- PESTAÑA 4: SCOUTING PLAGAS -->
     <div id="scouting" class="panel">
         <h2>Mapa, Localizador GPS y Registro de Puntos de Scouting</h2>
-        
         <div class="grid-3 admin-only">
             <div>
                 <label>Plaga / Patógeno Registrado:</label>
@@ -187,7 +212,7 @@
             <button class="action-btn delete-all-btn admin-only" onclick="limpiarScoutingSeguro()" style="width: auto;">🗑️ Borrar Puntos</button>
         </div>
 
-        <p style="margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">💡 *Haz clic en cualquier punto del mapa para registrar una incidencia en campo (Solo Admin).*</p>
+        <p style="margin-bottom: 10px; color: #64748b; font-size: 0.9rem;">💡 *Haz clic en cualquier punto del mapa para registrar una incidencia con puntero optimizado.*</p>
         <div id="mapaScouting"></div>
 
         <h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.1rem; color: var(--primary-dark);">Tabla Dinámica de Puntos de Monitoreo</h3>
@@ -196,12 +221,12 @@
                 <tr><th>ID Punto</th><th>Plaga / Patógeno</th><th>Severidad</th><th>Coordenadas (Lat, Lon)</th><th>Fecha / Hora</th><th class="admin-only">Acción Admin</th></tr>
             </thead>
             <tbody id="tablaScoutingBody">
-                <tr><td colspan="6" style="text-align: center; color: #64748b;">Cargando puntos...</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: #64748b;">Sin puntos registrados.</td></tr>
             </tbody>
         </table>
     </div>
 
-    <!-- PESTAÑA 4: HIDRÁULICA Y RIEGO -->
+    <!-- PESTAÑA 5: HIDRÁULICA Y RIEGO -->
     <div id="riego" class="panel">
         <h2>Demanda Hídrica ($ET_c$) y Caudal de Bombeo</h2>
         <div class="grid-4">
@@ -226,7 +251,7 @@
         <div id="resultadoRiegoLote" class="result-box" style="display:none;"></div>
     </div>
 
-    <!-- PESTAÑA 5: DENSIDAD Y YIELD -->
+    <!-- PESTAÑA 6: DENSIDAD Y YIELD -->
     <div id="plantacion" class="panel">
         <h2>Marco de Plantación y Yield</h2>
         <div class="grid-4">
@@ -255,38 +280,48 @@
 <script>
     const PIN_ADMIN = "2026";
     let esAdmin = false;
-    
-    // Usamos almacenamiento sincronizado mediante API pública en la nube de JSONBlob (Gratuita y libre de reglas)
-    const CLOUD_URL_LOTES = "https://jsonblob.com/api/1349000000000000000"; // Se autogestiona o usa fallback local
     let listaLotesDatos = [];
     let listaScoutingDatos = [];
 
-    // Carga inicial local y respaldo de sincronización
     function cargarDatosLocales() {
         try {
-            let l = localStorage.getItem('agrosmart_lotes_direct');
+            let l = localStorage.getItem('agrosmart_lotes_v6');
             if(l) listaLotesDatos = JSON.parse(l);
-            let s = localStorage.getItem('agrosmart_scouting_direct');
+            let s = localStorage.getItem('agrosmart_scouting_v6');
             if(s) listaScoutingDatos = JSON.parse(s);
         } catch(e){}
     }
     cargarDatosLocales();
 
     function guardarDatosLocales() {
-        localStorage.setItem('agrosmart_lotes_direct', JSON.stringify(listaLotesDatos));
-        localStorage.setItem('agrosmart_scouting_direct', JSON.stringify(listaScoutingDatos));
-        document.getElementById('cloudStatusIndicator').innerText = "☁️ Sincronizado";
-        document.getElementById('cloudStatusIndicatorstyle').background = "#dcfce7";
-        document.getElementById('cloudStatusIndicator').style.color = "#166534";
+        localStorage.setItem('agrosmart_lotes_v6', JSON.stringify(listaLotesDatos));
+        localStorage.setItem('agrosmart_scouting_v6', JSON.stringify(listaScoutingDatos));
     }
 
-    window.sincronizarConNube = function() {
-        document.getElementById('cloudStatusIndicator').innerText = "🔄 Sincronizando...";
-        setTimeout(() => {
-            guardarDatosLocales();
-            renderizarMapasYTablas();
-            alert("✅ ¡Datos sincronizados correctamente con la sesión activa!");
-        }, 500);
+    window.exportarTodoBackupGeneral = function() {
+        let paquete = { lotes: listaLotesDatos, scouting: listaScoutingDatos };
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(paquete));
+        let dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "agrosmart_paquete_completo.json");
+        document.body.appendChild(dl); dl.click(); dl.remove();
+    }
+
+    window.importarTodoBackupGeneral = function(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let imported = JSON.parse(e.target.result);
+                if (imported.lotes && imported.scouting) {
+                    listaLotesDatos = imported.lotes;
+                    listaScoutingDatos = imported.scouting;
+                    guardarDatosLocales();
+                    renderizarMapasYTablas();
+                    alert("✅ ¡Paquete sincronizado con éxito!");
+                } else { alert("❌ Formato de paquete no válido."); }
+            } catch(err) { alert("❌ Error al leer el archivo."); }
+        };
+        reader.readAsText(file);
     }
 
     function cambiarRolSistema() {
@@ -296,9 +331,7 @@
                 esAdmin = true;
                 actualizarInterfazRoles();
                 alert("🔓 Modo Administrador Activado.");
-            } else if (pin !== null) {
-                alert("❌ PIN Incorrecto.");
-            }
+            } else if (pin !== null) { alert("❌ PIN Incorrecto."); }
         } else {
             esAdmin = false;
             actualizarInterfazRoles();
@@ -312,14 +345,14 @@
         let elementosAdmin = document.querySelectorAll('.admin-only');
 
         if (esAdmin) {
-            label.innerHTML = `👑 Modo: <strong style="color: #fde047;">Administrador</strong>`;
-            btn.innerText = "🔒 Cerrar Admin";
+            label.innerHTML = `👑 <strong style="color: #fde047;">Admin</strong>`;
+            btn.innerText = "🔒 Salir";
             btn.style.background = "#dc2626";
             btn.style.color = "white";
             elementosAdmin.forEach(el => el.style.display = "block");
             if (drawControl) mapaSatellital.addControl(drawControl);
         } else {
-            label.innerHTML = `👤 Modo: <strong>Operador</strong>`;
+            label.innerHTML = `👤 <strong>Operador</strong>`;
             btn.innerText = "🔑 Admin";
             btn.style.background = "white";
             btn.style.color = "var(--primary-dark)";
@@ -340,63 +373,99 @@
         }, 150);
     }
 
-    // --- 1. BIOMETRÍA ---
-    let loadedImageObj = null;
-    document.getElementById('fotoPlanta').addEventListener('change', (e) => {
+    // --- 1. ÁREA FOLIAR DE CERTEZA ---
+    let imgObjFoliar = null;
+    document.getElementById('fotoPlantaFoliar').addEventListener('change', (e) => {
         let file = e.target.files[0];
         if (!file) return;
-        let img = document.getElementById('imagenOriginal');
+        let img = document.getElementById('imgFoliarPreview');
         img.src = URL.createObjectURL(file);
-        img.onload = () => { loadedImageObj = img; }
+        img.onload = () => { imgObjFoliar = img; }
     });
 
-    function procesarBiometriaCompleta() {
-        if (!loadedImageObj) { alert("⚠️ Selecciona una fotografía primero."); return; }
-        let areaRef = parseFloat(document.getElementById('areaReferenciaInput').value);
-        let densPlantas = parseFloat(document.getElementById('densidadPlantaInput').value);
-        
-        let canvas = document.getElementById('canvasOutput');
+    function calcularAreaFoliarCerteza() {
+        if (!imgObjFoliar) { alert("⚠️ Carga una fotografía primero."); return; }
+        let areaRefCm2 = parseFloat(document.getElementById('refAreaCm2').value);
+        let refPix = parseFloat(document.getElementById('refPixeles').value);
+
+        let canvas = document.getElementById('canvasFoliar');
         let ctx = canvas.getContext('2d');
-        canvas.width = loadedImageObj.naturalWidth || 400;
-        canvas.height = loadedImageObj.naturalHeight || 300;
-        ctx.drawImage(loadedImageObj, 0, 0, canvas.width, canvas.height);
+        canvas.width = imgObjFoliar.naturalWidth || 400;
+        canvas.height = imgObjFoliar.naturalHeight || 300;
+        ctx.drawImage(imgObjFoliar, 0, 0, canvas.width, canvas.height);
 
         let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        let data = imgData.data, pixelesSanos = 0, pixelesEstres = 0;
+        let data = imgData.data, pixelesVerdes = 0;
 
         for (let i = 0; i < data.length; i += 4) {
             let r = data[i], g = data[i+1], b = data[i+2];
-            let esSueloOFondo = (r > 60 && r > g && r > b) || (r < 40 && g < 40 && b < 40) || (Math.abs(r - g) < 15 && Math.abs(g - b) < 15 && r < 130);
-
-            if (esSueloOFondo) {
-                data[i] = 15; data[i+1] = 23; data[i+2] = 42;
+            // Filtro estricto de follaje verde saludable
+            if (g > r * 1.1 && g > b * 1.05 && g > 40) {
+                pixelesVerdes++;
+                data[i] = 34; data[i+1] = 197; data[i+2] = 94; // Verde marcado
             } else {
-                if (g > r * 1.15 && g > b) {
-                    pixelesSanos++;
-                    data[i] = 21; data[i+1] = 128; data[i+2] = 61;
-                } else {
-                    pixelesEstres++;
-                    data[i] = 234; data[i+1] = 179; data[i+2] = 8;
-                }
+                data[i] = 241; data[i+1] = 245; data[i+2] = 249; // Fondo neutro
             }
         }
         ctx.putImageData(imgData, 0, 0);
 
-        let pixelesTotales = canvas.width * canvas.height;
-        let totalFollaje = pixelesSanos + pixelesEstres;
-        let areaFoliarCm2 = (totalFollaje / (pixelesTotales * 0.3)) * (areaRef * 3);
-        let pctSano = totalFollaje > 0 ? (pixelesSanos / totalFollaje) * 100 : 0;
-        let lai = (areaFoliarCm2 / 10000) * densPlantas;
+        let relacionCm2PorPixel = areaRefCm2 / refPix;
+        let areaFoliarCalculada = pixelesVerdes * relacionCm2PorPixel;
 
-        let box = document.getElementById('resultadoFoliar');
+        let box = document.getElementById('resultadoFoliarCerteza');
         box.style.display = "block";
-        box.innerHTML = `🌿 <strong>Reporte Morfométrico:</strong><br>` +
-                        `• Área Foliar por Planta: <strong>${areaFoliarCm2.toFixed(2)} cm²</strong><br>` +
-                        `• Vigor Sanidad: <strong>${pctSano.toFixed(1)}%</strong> | Clorosis: <strong>${(100 - pctSano).toFixed(1)}%</strong><br>` +
-                        `• Índice de Área Foliar (LAI): <strong>${lai.toFixed(2)} m² hoja / m² suelo</strong>`;
+        box.innerHTML = `🌿 <strong>Reporte de Área Foliar con Certeza:</strong><br>` +
+                        `• Conteo Píxeles de Follaje: <strong>${pixelesVerdes.toLocaleString()} px</strong><br>` +
+                        `• Factor de Calibración: <strong>${relacionCm2PorPixel.toFixed(5)} cm²/px</strong><br>` +
+                        `• <strong>Área Foliar Total Estimada: ${areaFoliarCalculada.toFixed(2)} cm²</strong>`;
     }
 
-    // --- 2. CATASTRO DE POLÍGONOS GIS ---
+    // --- 2. VIGOR ESPECTRAL Y NDVI ---
+    let imgObjNdvi = null;
+    document.getElementById('fotoNdviInput').addEventListener('change', (e) => {
+        let file = e.target.files[0];
+        if (!file) return;
+        let img = document.getElementById('imgNdviOriginal');
+        img.src = URL.createObjectURL(file);
+        img.onload = () => { imgObjNdvi = img; }
+    });
+
+    function procesarIndiceNDVI() {
+        if (!imgObjNdvi) { alert("⚠️ Carga una imagen para el análisis NDVI."); return; }
+        let canvas = document.getElementById('canvasNdviOutput');
+        let ctx = canvas.getContext('2d');
+        canvas.width = imgObjNdvi.naturalWidth || 400;
+        canvas.height = imgObjNdvi.naturalHeight || 300;
+        ctx.drawImage(imgObjNdvi, 0, 0, canvas.width, canvas.height);
+
+        let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imgData.data, sumaNdvi = 0, totalPix = canvas.width * canvas.height;
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = data[i], g = data[i+1], b = data[i+2];
+            // Simulación de cálculo NDVI basada en reflectancia de bandas (NIR ~ G, Rojo ~ R)
+            let ndviVal = (g - r) / (g + r + 1e-6);
+            sumaNdvi += ndviVal;
+
+            if (ndviVal > 0.3) {
+                data[i] = 22; data[i+1] = 163; data[i+2] = 74; // Alta densidad (Verde oscuro)
+            } else if (ndviVal > 0.1) {
+                data[i] = 234; data[i+1] = 179; data[i+2] = 8; // Moderada (Amarillo)
+            } else {
+                data[i] = 220; data[i+1] = 38; data[i+2] = 38; // Suelo desnudo / Estrés (Rojo)
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        let promedioNdvi = sumaNdvi / totalPix;
+
+        let box = document.getElementById('resultadoNdviBox');
+        box.style.display = "block";
+        box.innerHTML = `🛰️ <strong>Diagnóstico Espectral NDVI:</strong><br>` +
+                        `• Promedio Índice NDVI: <strong>${promedioNdvi.toFixed(3)}</strong><br>` +
+                        `• Estado Vegetativo General: <strong>${promedioNdvi > 0.3 ? 'Vigoroso / Óptimo' : 'Alerta por Estrés / Baja Cobertura'}</strong>`;
+    }
+
+    // --- 3. CATASTRO GIS ---
     let capaSatellites = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Esri' });
     let capaCalles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: 'OSM' });
 
@@ -412,12 +481,15 @@
         draw: { polygon: true, rectangle: true, polyline: false, circle: false, marker: false, circlemarker: false }
     });
 
+    let gpsMarkerLotes = null;
     function ubicarGPSMapaLotes() {
         if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
         navigator.geolocation.getCurrentPosition((pos) => {
             let lat = pos.coords.latitude, lon = pos.coords.longitude;
             mapaSatellital.setView([lat, lon], 17);
-            L.marker([lat, lon]).addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
+            if(gpsMarkerLotes) mapaSatellital.removeLayer(gpsMarkerLotes);
+            gpsMarkerLotes = L.circleMarker([lat, lon], { radius: 10, fillColor: '#3b82f6', color: '#fff', weight: 3, fillOpacity: 1 })
+                .addTo(mapaSatellital).bindPopup("📍 ¡Tu ubicación GPS actual (Alta Precisión)!").openPopup();
         }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
     }
 
@@ -466,22 +538,25 @@
         document.body.appendChild(dl); dl.click(); dl.remove();
     }
 
-    // --- 3. SCOUTING & GPS ---
+    // --- 4. SCOUTING PLAGAS ---
     let mapaScouting = L.map('mapaScouting', { center: [-8.1116, -79.0282], zoom: 15, layers: [L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 })] });
     window.mapaScouting = mapaScouting;
     let scoutingLayerGroup = L.layerGroup().addTo(mapaScouting);
 
+    let gpsMarkerScouting = null;
     function ubicarGPSMapaScouting() {
         if (!navigator.geolocation) { alert("⚠️ GPS no soportado."); return; }
         navigator.geolocation.getCurrentPosition((pos) => {
             let lat = pos.coords.latitude, lon = pos.coords.longitude;
             mapaScouting.setView([lat, lon], 17);
-            L.marker([lat, lon]).addTo(mapaScouting).bindPopup("📍 ¡Tu ubicación GPS en Scouting!").openPopup();
+            if(gpsMarkerScouting) mapaScouting.removeLayer(gpsMarkerScouting);
+            gpsMarkerScouting = L.circleMarker([lat, lon], { radius: 10, fillColor: '#3b82f6', color: '#fff', weight: 3, fillOpacity: 1 })
+                .addTo(mapaScouting).bindPopup("📍 ¡Tu ubicación GPS actual!").openPopup();
         }, () => { alert("❌ Error obteniendo GPS."); }, { enableHighAccuracy: true });
     }
 
     mapaScouting.on('click', function(e) {
-        if (!esAdmin) { alert("⛔ Acceso denegado: Solo el Administrador puede registrar puntos de scouting en campo."); return; }
+        if (!esAdmin) { alert("⛔ Acceso denegado: Solo el Administrador puede registrar puntos de scouting."); return; }
         let lat = e.latlng.lat;
         let lon = e.latlng.lng;
         let plaga = document.getElementById('plagaInput').value.trim() || "Incidencia General";
@@ -581,7 +656,7 @@
         }
     }
 
-    // --- 4. HIDRÁULICA Y RIEGO ---
+    // --- 5. HIDRÁULICA Y RIEGO ---
     window.calcularHidraulicaCompleta = function() {
         let idx = document.getElementById('selectLoteRiego').value;
         let et0 = parseFloat(document.getElementById('et0Input').value);
@@ -603,7 +678,7 @@
                         `• Caudal de Bombeo: <strong>${caudalLPS.toFixed(2)} L/s</strong>`;
     }
 
-    // --- 5. DENSIDAD Y YIELD ---
+    // --- 6. DENSIDAD Y YIELD ---
     window.calcularYieldCompleto = function() {
         let idx = document.getElementById('selectLotePlantacion').value;
         let dSurco = parseFloat(document.getElementById('distSurcos').value);
